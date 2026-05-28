@@ -56,6 +56,14 @@ git commit -m "feat(scope): short description of the changes"
 git push origin feat/your-feature-name
 ```
 
+## Project Documentation
+
+All documentation, discovery notes, and requirements gathered during the project lifecycle are organized inside the `docs/` directory:
+
+*   [Client Interview](./docs/client-interview.md) — Summary of requirements and discovery session with Verónica Mora.
+*   [Functional Requirements](./docs/functional-requirements.md) — Product backlog, user stories, and acceptance criteria.
+*   [Non Functional Requirements](./docs/non-functional-requirements.md) — System constraints, security standards, performance metrics, and tech stack configurations.
+
 ## Project Status & Agile Roadmap (Scrum Framework)
 | Process / Iteration | Focus Area | Status |
 | :--- | :--- | :--- |
