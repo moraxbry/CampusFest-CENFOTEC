@@ -364,32 +364,214 @@ graph TD
  
 ---
 
+## Especificación de Diseño de Software
 
+### Arquitectura del Sistema
+
+#### Diagrama de Arquitectura (Capas)
+
+El sistema se divide en cinco capas, comunicadas de forma estrictamente descendente: el cliente consume la API REST, la API delega en los controladores, los controladores usan los modelos para acceder a los datos, y los modelos persisten en MongoDB Atlas.
+
+```mermaid
+graph TD
+    C[Cliente - Navegador]
+    R[Capa de rutas - Express]
+    CT[Capa de controladores]
+    M[Capa de modelos - Mongoose]
+    DB[Base de datos - MongoDB Atlas]
+
+    C --> R
+    R --> CT
+    CT --> M
+    M --> DB
+```
+
+#### Patrones Arquitectónicos Empleados
+
+* **Arquitectura Cliente-Servidor:** El front-end (cliente) y el back-end (servidor) están completamente desacoplados y se comunican únicamente a través de peticiones HTTP.
+* **Modelo-Vista-Controlador (MVC):** El back-end separa los datos (`/models`), la lógica de negocio (`/controllers`) y la interfaz (`/views`), conforme a RNF-05.
+* **API RESTful:** La comunicación entre capas usa recursos identificados por URL, verbos HTTP estándar (GET, POST, PUT, DELETE) y formato JSON (RNF-24).
+* **Middleware Pattern:** Se usan middlewares de Express para interceptar peticiones antes de llegar al controlador, principalmente para autenticación (`middlewares/auth.js`) y validación/sanitización de datos (RNF-13).
+
+---
+
+### Diseño de la Base de Datos
+
+Motor: MongoDB (NoSQL, orientado a documentos), desplegado en MongoDB Atlas. El diseño combina **referencias** (para relaciones 1:N que pueden crecer sin límite, como las inscripciones) y **documentos embebidos** (para relaciones 1:1 o de tamaño fijo y pequeño que casi siempre se consultan juntas).
+
+#### Colección: `Activity`
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `_id` | ObjectId | Identificador único generado por MongoDB |
+| `name` | String | Nombre de la actividad |
+| `description` | String | Descripción detallada |
+| `category` | String | Categoría de la actividad |
+| `date` | Date | Fecha de realización |
+| `time` | String | Hora de inicio |
+| `location` | String | Ubicación física dentro del festival |
+| `requirements` | String | Requisitos de participación |
+| `maxCapacity` | Number | Total de cupos disponibles |
+| `takenSpots` | Number | Cupos actualmente ocupados |
+| `status` | String (enum: `available`, `full`, `cancelled`) | Estado simulado del cupo (RF-07) |
+| `result` | **Documento embebido** (ver abajo) | Resultado de la actividad, si ya concluyó |
+| `createdAt` | Date | Fecha de creación del registro |
+| `updatedAt` | Date | Fecha de última modificación |
+
+**Subdocumento embebido `result`** (dentro de `Activity`):
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `firstPlace` | String | Ganador del podio de oro |
+| `secondPlace` | String | Ganador del podio de plata |
+| `thirdPlace` | String | Ganador del podio de bronce |
+| `publishedAt` | Date | Fecha en que se publicó el resultado |
+
+> Se embebió por ser una relación **1 a 1** con datos pequeños y fijos (3 campos) que siempre se consultan junto con la actividad — evita una colección adicional y un `populate()` extra.
+
+#### Colección: `Inscription`
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `_id` | ObjectId | Identificador único |
+| `fullName` | String | Nombre del participante (obligatorio) |
+| `idNumber` | String | Número de identificación (obligatorio) |
+| `email` | String | Correo electrónico (obligatorio, único por actividad) |
+| `phone` | String | Teléfono de contacto (obligatorio) |
+| `major` | String | Carrera o grupo del participante (obligatorio) |
+| `activity` | **ObjectId (ref: `Activity`)** | Actividad a la que se inscribe |
+| `comments` | String | Comentarios opcionales |
+| `status` | String (enum: `confirmed`, `waitlisted`) | Estado de la inscripción (RF-18) |
+| `waitlistPosition` | Number | Posición en la lista de espera (si aplica) |
+| `createdAt` | Date | Fecha de inscripción |
+
+> Se referenció (no se embebió) porque es una relación **1 a muchos sin límite conocido**: una actividad puede tener cientos de inscritos, y embeberlos haría crecer el documento de `Activity` sin control además de reescribirlo en cada inscripción nueva.
+
+#### Colección: `Stand`
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `_id` | ObjectId | Identificador único |
+| `name` | String | Nombre del stand o grupo |
+| `category` | String | Categoría del stand |
+| `owner` | String | Persona encargada |
+| `location` | String | Ubicación física |
+| `description` | String | Descripción del stand |
+| `image` | String | URL o ruta de la imagen del stand |
+
+#### Colección: `UserAdmin`
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `_id` | ObjectId | Identificador único |
+| `username` | String | Nombre de usuario para inicio de sesión |
+| `email` | String | Correo del administrador |
+| `passwordHash` | String | Contraseña cifrada con bcrypt (RNF-14) |
+| `role` | String | Rol del usuario (ej. `superadmin`) |
+| `createdAt` | Date | Fecha de creación de la cuenta |
+
+#### Colección: `Configuration` (documento único)
+
+Se modela como una **única colección con un solo documento**, ya que solo existen dos secciones fijas de contenido dinámico (inicio y contacto), siempre se editan por separado pero rara vez crecen en cantidad.
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `_id` | ObjectId | Identificador único (documento único en la colección) |
+| `home` | **Documento embebido** | Contenido dinámico de la página de inicio |
+| `contact` | **Documento embebido** | Contenido dinámico de la página de contacto |
+
+**Subdocumento embebido `home`:**
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `title` | String | Título/banner editable |
+| `description` | String | Texto descriptivo editable |
+
+**Subdocumento embebido `contact`:**
+
+| Campo | Tipo de dato | Descripción |
+| :--- | :--- | :--- |
+| `title` | String | Título editable |
+| `description` | String | Texto descriptivo editable |
+| `contactEmail` | String | Correo de contacto |
+| `contactPhone` | String | Teléfono de contacto |
+
+---
+
+### API REST
+
+| Método | Ruta | Descripción |
+| :--- | :--- | :--- |
+| GET | `/api/activities` | Lista todas las actividades, con soporte de filtros por query params (categoría, fecha, estado) |
+| GET | `/api/activities/featured` | Devuelve las 3 actividades con menor cupo disponible |
+| GET | `/api/activities/results` | Lista las actividades concluidas que ya tienen `result` publicado |
+| GET | `/api/activities/:id` | Devuelve el detalle completo de una actividad (incluye `result` embebido si existe) |
+| POST | `/api/inscriptions` | Registra una nueva inscripción; asigna a lista de espera si el cupo está lleno |
+| GET | `/api/stands` | Lista todos los stands y grupos participantes |
+| GET | `/api/configuration` | Devuelve el documento único con el contenido dinámico de inicio y contacto |
+| POST | `/api/contact` | Envía una consulta desde el formulario de contacto |
+| POST | `/api/admin/login` | Autentica al administrador y genera la sesión/token |
+| POST | `/api/admin/activities` | Crea una nueva actividad *(requiere autenticación)* |
+| PUT | `/api/admin/activities/:id` | Edita cualquier campo de una actividad existente, incluyendo `status` (ej. cancelarla) *(requiere autenticación)* |
+| DELETE | `/api/admin/activities/:id` | Elimina permanentemente el registro de la actividad *(requiere autenticación)* |
+| PUT | `/api/admin/activities/:id/result` | Publica o actualiza el resultado embebido de una actividad *(requiere autenticación)* |
+| GET | `/api/admin/inscriptions` | Consulta detallada de inscripciones y listas de espera *(requiere autenticación)* |
+| PUT | `/api/admin/inscriptions/:id` | Cancela o modifica una inscripción *(requiere autenticación)* |
+| POST | `/api/admin/stands` | Registra un nuevo stand *(requiere autenticación)* |
+| PUT | `/api/admin/stands/:id` | Edita un stand existente *(requiere autenticación)* |
+| PUT | `/api/admin/configuration/:section` | Modifica el subdocumento embebido `home` o `contact` del documento de configuración *(requiere autenticación)* |
+
+---
+
+### Seguridad (Manejo de Errores)
+
+* **Middleware global de errores:** Express centraliza el manejo de errores no controlados en un middleware final, devolviendo siempre una respuesta JSON estandarizada (`{ success: false, message }`) sin exponer trazas técnicas al cliente (RNF-18).
+* **Validación en dos niveles:** El cliente valida campos obligatorios y formato de correo antes de enviar (RNF-12); el backend revalida y sanitiza toda entrada para prevenir inyecciones o datos corruptos (RNF-13), independientemente de si la validación del cliente fue superada.
+* **Manejo de errores de conexión a BD:** Si MongoDB Atlas no responde, el sistema captura la excepción y devuelve un mensaje genérico y amigable al usuario, registrando el detalle técnico solo en el log del servidor.
+* **Protección de rutas administrativas:** El middleware `auth.js` verifica la sesión/token antes de permitir el acceso a cualquier endpoint bajo `/api/admin/*`; una autenticación fallida retorna `401 Unauthorized` sin revelar detalles internos.
+* **Contraseñas:** Las credenciales del administrador se almacenan cifradas con bcrypt (hashing unidireccional), nunca en texto plano (RNF-14).
+* **Persistencia ante fallos de red:** Si se pierde la conexión mientras se llena el formulario de inscripción, los datos ingresados se conservan en el cliente para evitar que el usuario deba volver a digitarlos (RNF-23).
+
+---
+
+### Tecnologías Utilizadas
+
+| Capa | Tecnología |
+| :--- | :--- |
+| Front-end | HTML5 semántico, CSS3, JavaScript (Vanilla JS), Bootstrap |
+| Back-end | Node.js, Express.js |
+| Base de datos | MongoDB (MongoDB Atlas) |
+| Autenticación | bcrypt (hashing de contraseñas), middleware de sesión/token |
+| Comunicación | API RESTful con formato JSON |
+| Control de versiones | Git y GitHub |
+| Gestión del proyecto | Jira Software |
+| Prototipado | Figma (prototipo de alta fidelidad) |
 
 ### Matriz de Trazabilidad
+ 
+| ID Req. | Descripción Breve | Implementación (Componente / Módulo MVC) | Prototipo Correspondiente | Endpoint Correspondiente | Estado |
+| :--- | :--- | :----- | :----- | :----- | :----- |
+| **RF-01** | Estructura de Inicio y Menú | `views/index.html`, `public/css/style.css` | Pantalla: Inicio | `GET /api/configuration` | Por hacer 🟡 |
+| **RF-02, RF-03** | 3 Actividades destacadas dinámicas | `controllers/activityController.js`, `models/Activity.js` | Pantalla: Inicio (sección destacados) | `GET /api/activities/featured` | Por hacer 🟡 |
+| **RF-04** | Agenda formato calendario | `views/activities.html`, `public/js/filters.js` | Pantalla: Catálogo (bloque superior) | `GET /api/activities` | Por hacer 🟡 |
+| **RF-05** | Catálogo en tarjetas visuales | `views/activities.html`, `public/js/ui.js` | Pantalla: Catálogo | `GET /api/activities` | Por hacer 🟡 |
+| **RF-06** | Detalle completo de actividad | `controllers/activityController.js`, `views/details.html` | Pantalla: Detalle de Actividad | `GET /api/activities/:id` | Por hacer 🟡 |
+| **RF-07** | Estado visual del cupo (lleno/disp) | `public/js/ui.js` (Lógica de renderizado DOM) | Pantalla: Catálogo (tarjetas) | `GET /api/activities` (campo `status`) | Por hacer 🟡 |
+| **RF-08** | Filtrado múltiple (>8 hrs, cat, fecha) | `routes/activities.js`, `public/js/filters.js` | Pantalla: Catálogo (panel de filtros) | `GET /api/activities` (query params) | Por hacer 🟡 |
+| **RF-09** | Ordenamiento cronológico automático | `controllers/activityController.js` (Query sort) | Pantalla: Catálogo | `GET /api/activities` | Por hacer 🟡 |
+| **RF-10** | Directorio de stands y grupos | `views/stands.html`, `controllers/standController.js` | Pantalla: Stands | `GET /api/stands` | Por hacer 🟡 |
+| **RF-11** | Página y formulario de contacto | `views/contact.html`, `routes/admin.js` | Pantalla: Contacto | `GET /api/configuration`, `POST /api/contact` | Por hacer 🟡 |
+| **RF-12** | Sección de resultados y ganadores | `views/results.html`, `models/Activity.js` | Pantalla: Ganadores | `GET /api/activities/results` | Por hacer 🟡 |
+| **RF-13** | Modal superpuesto de inscripción | `views/activities.html` (Bootstrap Modal), `public/js/main.js` | Pantalla: Modal de Inscripción | `POST /api/inscriptions` | Por hacer 🟡 |
+| **RF-14, RF-15** | Captura obligatoria y validación JS | `public/js/validator.js` (Frontend) | Pantalla: Modal de Inscripción | `POST /api/inscriptions` | Por hacer 🟡 |
+| **RF-16** | Unicidad de correo para evitar duplicados | `controllers/inscriptionController.js` (Backend) | Pantalla: Modal de Inscripción (validación) | `POST /api/inscriptions` | Por hacer 🟡 |
+| **RF-17** | Confirmación visual y por correo | `public/js/ui.js`, Servicio Nodemailer | Pantalla: Modal de Inscripción (mensaje éxito) | `POST /api/inscriptions` (respuesta) | Por hacer 🟡 |
+| **RF-18, RF-19** | Asignación y alerta de lista de espera | `models/Inscription.js`, `controllers/inscriptionController.js` | Pantalla: Modal de Inscripción (mensaje espera) | `POST /api/inscriptions` | Por hacer 🟡 |
+| **RF-20** | CRUD de actividades por administrador | `views/admin/activities-management.html`, `routes/admin.js` | Panel Admin — Gestión de Actividades | `POST /api/admin/activities`, `PUT/DELETE /api/admin/activities/:id` | Por hacer 🟡 |
+| **RF-21** | Consulta detallada de participantes | `controllers/adminController.js` | Panel Admin — Inscripciones y Espera | `GET /api/admin/inscriptions` | Por hacer 🟡 |
+| **RF-22** | Privilegios exclusivos de cancelación | `middlewares/auth.js`, `routes/admin.js` | Panel Admin — Inscripciones y Espera | `PUT /api/admin/inscriptions/:id` | Por hacer 🟡 |
+| **RF-23** | Gestión (CRUD) de Stands y Grupos | `controllers/adminController.js` | Panel Admin — Páginas e Info (Info. de Stands) | `POST /api/admin/stands`, `PUT /api/admin/stands/:id` | Por hacer 🟡 |
+| **RF-24** | Publicación de resultados/ganadores | `models/Activity.js` (subdocumento `result`) | Panel Admin — Publicar Resultados | `PUT /api/admin/activities/:id/result` | Por hacer 🟡 |
+| **RF-25** | Modificación de textos dinámicos | `models/Configuration.js`, `controllers/adminController.js` | Panel Admin — Páginas e Info (Inicio/Contacto) | `PUT /api/admin/configuration/:section` | Por hacer 🟡 |
+| **RNF (TODOS)** | Estructuración, BD y Entornos | `server.js`, `config/db.js`, Repositorio GitHub | — | — | Completado 🟢 |
 
-| ID Req. | Descripción Breve | Épica / Ticket Jira | Implementación (Componente / Módulo MVC) | Prototipo Correspondiente | Estado |
-| :--- | :--- | :--- | :----- | :----- | :----- |
-| **RF-01** | Estructura de Inicio y Menú | EPIC-01 / **CAMPUS-01** | `views/inicio.html`, `public/css/style.css` | Pantalla: Inicio | Por hacer ⚫ |
-| **RF-02, RF-03** | 3 Actividades destacadas dinámicas | EPIC-01 / **CAMPUS-02** | `controllers/inicioController.js`, `models/Actividad.js` | Pantalla: Inicio (sección destacados) | Por hacer ⚫ |
-| **RF-04** | Agenda formato calendario | EPIC-01 / **CAMPUS-06** | `views/catalogo.html`, `public/js/agenda.js` | Pantalla: Catálogo (bloque superior) | Por hacer ⚫ |
-| **RF-05** | Catálogo en tarjetas visuales | EPIC-01 / **CAMPUS-07** | `views/catalogo.html`, `public/js/ui.js` | Pantalla: Catálogo | Por hacer ⚫ |
-| **RF-06** | Detalle completo de actividad | EPIC-01 / **CAMPUS-08** | `controllers/actividadController.js`, `views/detalle.html` | Pantalla: Detalle de Actividad | Por hacer ⚫ |
-| **RF-07** | Estado visual del cupo (lleno/disp) | EPIC-01 / **CAMPUS-12** | `public/js/ui.js` (Lógica de renderizado DOM) | Pantalla: Catálogo (tarjetas) | Por hacer ⚫ |
-| **RF-08** | Filtrado múltiple (>8 hrs, cat, fecha) | EPIC-01 / **CAMPUS-13** | `routes/actividades.js`, `public/js/filtros.js` | Pantalla: Catálogo (panel de filtros) | Por hacer ⚫ |
-| **RF-09** | Ordenamiento cronológico automático | EPIC-01 / **CAMPUS-14** | `controllers/actividadController.js` (Query sort) | Pantalla: Catálogo | Por hacer ⚫ |
-| **RF-10** | Directorio de stands y grupos | EPIC-01 / **CAMPUS-15** | `views/stands.html`, `controllers/standController.js` | Pantalla: Stands | Por hacer ⚫ |
-| **RF-11** | Página y formulario de contacto | EPIC-01 / **CAMPUS-16** | `views/contacto.html`, `routes/contacto.js` | Pantalla: Contacto | Por hacer ⚫ |
-| **RF-12** | Sección de resultados y ganadores | EPIC-01 / **CAMPUS-17** | `views/ganadores.html`, `models/Resultado.js` | Pantalla: Ganadores | Por hacer ⚫ |
-| **RF-13** | Modal superpuesto de inscripción | EPIC-02 / **CAMPUS-18** | `views/catalogo.html` (Bootstrap Modal), `public/js/main.js` | Pantalla: Modal de Inscripción | Por hacer ⚫ |
-| **RF-14, RF-15** | Captura obligatoria y validación JS | EPIC-02 / **CAMPUS-19** | `public/js/validator.js` (Frontend) | Pantalla: Modal de Inscripción | Por hacer ⚫ |
-| **RF-16** | Unicidad de correo para evitar duplicados | EPIC-02 / **CAMPUS-20** | `controllers/inscripcionController.js` (Backend) | Pantalla: Modal de Inscripción (validación) | Por hacer ⚫ |
-| **RF-17** | Confirmación visual y por correo | EPIC-02 / **CAMPUS-21** | `public/js/ui.js`, Servicio Nodemailer | Pantalla: Modal de Inscripción (mensaje éxito) | Por hacer ⚫ |
-| **RF-18, RF-19** | Asignación y alerta de lista de espera | EPIC-02 / **CAMPUS-22** | `models/Inscripcion.js`, `controllers/inscripcionController.js` | Pantalla: Modal de Inscripción (mensaje espera) | Diseñado 🟡 |
-| **RF-20** | CRUD de actividades por administrador | EPIC-03 / **CAMPUS-23** | `views/admin-actividades.html`, `routes/admin.js` | Panel Admin — Gestión de Actividades | Diseñado 🟡 |
-| **RF-21** | Consulta detallada de participantes | EPIC-03 / **CAMPUS-24** | `controllers/adminController.js`, `views/admin-inscritos.html` | Panel Admin — Inscripciones y Espera | Diseñado 🟡 |
-| **RF-22** | Privilegios exclusivos de cancelación | EPIC-03 / **CAMPUS-25** | `middlewares/auth.js`, `routes/admin.js` | Panel Admin — Inscripciones y Espera | Diseñado 🟡 |
-| **RF-23** | Gestión (CRUD) de Stands y Grupos | EPIC-03 / **CAMPUS-26** | `controllers/adminStandController.js` | Panel Admin — Páginas e Info (Info. de Stands) | Diseñado 🟡 |
-| **RF-24** | Publicación de resultados/ganadores | EPIC-03 / **CAMPUS-27** | `models/Resultado.js`, `views/admin-ganadores.html` | Panel Admin — Publicar Resultados | Diseñado 🟡 |
-| **RF-25** | Modificación de textos dinámicos | EPIC-03 / **CAMPUS-28** | `models/Configuracion.js`, `controllers/adminController.js` | Panel Admin — Páginas e Info (Inicio/Contacto) | Diseñado 🟡 |
-| **RNF (TODOS)** | Estructuración, BD y Entornos | SPRINT 1 / **CAMPUS-02** | `server.js`, `config/db.js`, Repositorio GitHub | — | Completado 🟢 |
