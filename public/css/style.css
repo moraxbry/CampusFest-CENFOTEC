@@ -1,0 +1,87 @@
+/* ==================================================
+   1. PALETA DE COLORES INSTITUCIONALES (MANUAL DE MARCA)
+   ================================================== */
+:root {
+    /* --- Colores Primarios de Marca --- */
+    --ucenfotec-blue-dark: #164a98;
+    --ucenfotec-blue-vibrant: #006aea;
+    --ucenfotec-blue-light: #9cc8ff;
+    --ucenfotec-gray-light: #d2d2d2;
+    --ucenfotec-gray-dark: #7c7b75;
+
+    /* --- Colores Secundarios de Acento por Escuela --- */
+    --school-systems: #2b93d1;
+    --school-cyber: #f05323;
+    --school-fundamentals: #4aa147;
+    --school-software: #c81f66;
+    --school-it: #c7ac19;
+    --school-affairs: #00928d;
+    --school-intelligent: #00734a;
+    --school-business: #d2232a;
+    --school-alumni: #712c86;
+
+    /* --- Mapeo de Interfaz: MODO CLARO (Default) --- */
+    --bg-primary: #ffffff;
+    --bg-secondary: var(--ucenfotec-gray-light);
+    --bg-surface: #f8f9fa;
+    --text-main: #1a1a1a;
+    --text-muted: var(--ucenfotec-gray-dark);
+    --border-color: rgba(0, 0, 0, 0.1);
+
+    /* Mapeo de Estados del Cupo (Simulación) */
+    --status-disponible: var(--school-fundamentals);
+    --status-lleno: var(--school-cyber);
+    --status-cancelado: var(--ucenfotec-gray-dark);
+
+    /* Alertas de Retroalimentación */
+    --alert-success: var(--school-fundamentals);
+    --alert-warning: var(--school-it);
+    --alert-error: var(--school-business);
+}
+
+/* --- Mapeo de Interfaz: MODO OSCURO NATIVO (RNF-10) --- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-surface: #252526;
+        --text-main: #f5f5f5;
+        --text-muted: #b0b0b0;
+        --border-color: rgba(255, 255, 255, 0.15);
+
+        --ucenfotec-blue-dark: #1f5cb8;
+        --bg-surface-card: #202024;
+    }
+}
+
+/* ==================================================
+   2. ESTILOS GLOBALES
+   ================================================== */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+}
+
+/* Foco visible obligatorio (WCAG 2.4.7 / RNF-19) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--ucenfotec-blue-vibrant);
+    outline-offset: 2px;
+}
+
+/* Área táctil mínima en móvil (RNF-09) */
+@media (max-width: 767px) {
+    .btn,
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Badges de estado de cupo (RF-07) */
+.badge-disponible { background-color: var(--status-disponible); }
+.badge-lleno { background-color: var(--status-lleno); }
+.badge-cancelado { background-color: var(--status-cancelado); }

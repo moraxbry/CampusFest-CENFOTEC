@@ -1,0 +1,37 @@
+{
+  "name": "campusfest-cenfotec",
+  "version": "1.0.0",
+  "description": "Aplicación web full stack para la gestión del festival estudiantil CampusFest.\r Desarrollada para \"Proyecto Integrador I\" de la Universidad CENFOTEC.",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moraxbry/CampusFest-CENFOTEC.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/moraxbry/CampusFest-CENFOTEC/issues"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "homepage": "https://github.com/moraxbry/CampusFest-CENFOTEC#readme"
+  
+
+}
