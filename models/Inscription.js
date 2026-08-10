@@ -22,7 +22,7 @@ const inscriptionSchema = new Schema(
     comments: { type: String, default: '' },
     status: {
       type: String,
-      enum: ['confirmed', 'waitlisted'],
+      enum: ['confirmed', 'waitlisted','cancelled'],
       default: 'confirmed',
     },
     waitlistPosition: { type: Number, default: null },
