@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFest — Panel de Administración</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="admin">
+  <div id="navbar-placeholder"></div>
+
+  <main class="container py-5">
+    <h1>Panel de Administración General</h1>
+    <p class="text-muted">Eres el encargado de alimentar de manera dinámica el ecosistema CampusFest.</p>
+    <span class="badge bg-dark mb-4">ROL: SUPERADMIN</span>
+
+    <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-activities" type="button">Gestión de Actividades</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pages" type="button">Gestionar Páginas e Info</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-inscriptions" type="button">Inscripciones y Espera</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-results" type="button">Publicar Resultados</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Actividades -->
+      <div class="tab-pane fade show active" id="tab-activities">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="mb-0">Control de Actividades</h4>
+            <p class="text-muted small mb-0">Crea, edita o elimina actividades de la parrilla general.</p>
+          </div>
+          <button class="btn btn-primary" id="newActivityBtn"><i class="bi bi-plus-lg"></i> Nueva Actividad</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Actividad</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Cupos</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="activitiesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Páginas e Info -->
+      <div class="tab-pane fade" id="tab-pages">
+        <div class="row mb-5">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0">Directorio de Stands</h4>
+              <button class="btn btn-primary" id="newStandBtn"><i class="bi bi-plus-lg"></i> Nuevo Stand</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Encargado</th>
+                    <th class="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="standsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="mb-3">Textos Dinámicos</h4>
+        <div id="configAlert"></div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="fw-bold">Página de Inicio</h6>
+                <form id="homeConfigForm">
+                  <div class="mb-2">
+                    <label class="form-label small">Título</label>
+                    <input class="form-control" name="title" type="text">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small">Descripción</label>
+                    <textarea class="form-control" name="description" rows="2"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-outline-primary btn-sm">Guardar Inicio</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="fw-bold">Página de Contacto</h6>
+                <form id="contactConfigForm">
+                  <div class="mb-2">
+                    <label class="form-label small">Título</label>
+                    <input class="form-control" name="title" type="text">
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label small">Descripción</label>
+                    <textarea class="form-control" name="description" rows="2"></textarea>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label small">Correo de Contacto</label>
+                    <input class="form-control" name="contactEmail" type="email">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small">Teléfono de Contacto</label>
+                    <input class="form-control" name="contactPhone" type="text">
+                  </div>
+                  <button type="submit" class="btn btn-outline-primary btn-sm">Guardar Contacto</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inscripciones y Espera -->
+      <div class="tab-pane fade" id="tab-inscriptions">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">Inscripciones y Lista de Espera</h4>
+          <select class="form-select w-auto" id="inscriptionActivityFilter">
+            <option value="Todas">Todas las actividades</option>
+          </select>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Actividad</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="inscriptionsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Publicar Resultados -->
+      <div class="tab-pane fade" id="tab-results">
+        <h4 class="mb-3">Publicar Resultados</h4>
+        <div id="resultAlert"></div>
+        <div class="card shadow-sm" style="max-width: 520px;">
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Actividad</label>
+              <select class="form-select" id="resultActivitySelect">
+                <option value="">Seleccioná una actividad…</option>
+              </select>
+            </div>
+            <form id="resultForm">
+              <div class="mb-2">
+                <label class="form-label small">🥇 1er Lugar</label>
+                <input class="form-control" name="firstPlace" type="text">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">🥈 2do Lugar</label>
+                <input class="form-control" name="secondPlace" type="text">
+              </div>
+              <div class="mb-3">
+                <label class="form-label small">🥉 3er Lugar</label>
+                <input class="form-control" name="thirdPlace" type="text">
+              </div>
+              <button type="submit" class="btn btn-primary">Publicar Resultado</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <!-- Modal: crear/editar actividad -->
+  <div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="activityModalTitle">Nueva Actividad</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="activityForm" novalidate>
+            <input type="hidden" name="_id">
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label class="form-label" for="activityName">Nombre</label>
+                <input class="form-control" id="activityName" name="name" type="text">
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="activityCategory">Categoría</label>
+                <input class="form-control" id="activityCategory" name="category" type="text">
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="activityDescription">Descripción</label>
+              <textarea class="form-control" id="activityDescription" name="description" rows="2"></textarea>
+              <div class="invalid-feedback">Este campo es obligatorio.</div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="activityDate">Fecha</label>
+                <input class="form-control" id="activityDate" name="date" type="date">
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="activityTime">Hora</label>
+                <input class="form-control" id="activityTime" name="time" type="time">
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="activityMaxCapacity">Cupo Máximo</label>
+                <input class="form-control" id="activityMaxCapacity" name="maxCapacity" type="number" min="1">
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label class="form-label" for="activityLocation">Ubicación</label>
+                <input class="form-control" id="activityLocation" name="location" type="text">
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="activityStatus">Estado</label>
+                <select class="form-select" id="activityStatus" name="status">
+                  <option value="available">Disponible</option>
+                  <option value="full">Lleno</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="activityRequirements">Requisitos</label>
+              <input class="form-control" id="activityRequirements" name="requirements" type="text">
+            </div>
+            <div class="modal-footer px-0 pb-0">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar Actividad</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: crear/editar stand -->
+  <div class="modal fade" id="standModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="standModalTitle">Nuevo Stand</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="standForm" novalidate>
+            <input type="hidden" name="_id">
+            <div class="mb-3">
+              <label class="form-label" for="standName">Nombre</label>
+              <input class="form-control" id="standName" name="name" type="text">
+              <div class="invalid-feedback">Este campo es obligatorio.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="standCategory">Categoría</label>
+              <input class="form-control" id="standCategory" name="category" type="text">
+              <div class="invalid-feedback">Este campo es obligatorio.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="standOwner">Encargado</label>
+              <input class="form-control" id="standOwner" name="owner" type="text">
+              <div class="invalid-feedback">Este campo es obligatorio.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="standLocation">Ubicación</label>
+              <input class="form-control" id="standLocation" name="location" type="text">
+              <div class="invalid-feedback">Este campo es obligatorio.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="standDescription">Descripción</label>
+              <textarea class="form-control" id="standDescription" name="description" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="standImage">URL de Imagen (Opcional)</label>
+              <input class="form-control" id="standImage" name="image" type="text">
+            </div>
+            <div class="modal-footer px-0 pb-0">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar Stand</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/validator.js"></script>
+  <script src="/js/filters.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
