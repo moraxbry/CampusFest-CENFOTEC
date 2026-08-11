@@ -16,12 +16,23 @@
 * **FR-14:** The form must mandatorily capture full name, ID, email, phone number, major or group, selected activity, and optionally, comments.
 * **FR-15:** The system must validate that the mandatory form fields are not empty and that the email format is correct before processing the form submission.
 * **FR-16:** The system must prevent duplicate enrollments by validating the uniqueness of the entered email address for the same activity.
-* **FR-17:** The system must send an automatic confirmation email to the participant after a successful enrollment and display a confirmation message directly on the screen.
+* **FR-17:** ~~The system must send an automatic confirmation email to the participant after a successful enrollment~~ and display a confirmation message directly on the screen. **[Scope change, see note below]** Email sending is simulated (visual confirmation only); no real SMTP/Nodemailer integration was implemented.
 * **FR-18:** The system must automatically register the participant on a waiting list in case the activity's maximum capacity status is "full".
-* **FR-19:** The system must display a warning message to the participant when they are placed on the waiting list and automatically notify them via email.
+* **FR-19:** The system must display a warning message to the participant when they are placed on the waiting list. ~~and automatically notify them via email~~ **[Scope change, see note below]** Same as FR-17: no real email is sent, only the on-screen waitlist message.
 * **FR-20:** The system must allow the administrator user to register, edit, and cancel activities.
 * **FR-21:** The system must allow the administrator to consult the detailed enrollment information of each participant.
-* **FR-22:** The system must allow the administrator to be the only one with privileges to cancel or modify user enrollments.
+* **FR-22:** The system must allow the administrator to cancel or modify user enrollments. **[Scope change, see note below]** "Only one with privileges" is no longer enforced by authentication — the admin panel has no login check on the backend, so this is a UI-level convention, not an access-controlled guarantee.
 * **FR-23:** The system must allow the administrator to register and edit the information of the participating stands and groups.
 * **FR-24:** The system must allow the administrator to update and publish results or recognitions in the winners section.
 * **FR-25:** The system must allow the administrator to modify, add, or delete the general information on the home and contact pages.
+
+---
+
+## Note on Scope Changes (added during development)
+
+Two decisions were made at the instructor's request while implementing this backlog, affecting the requirements marked above:
+
+1. **No real authentication for the admin backoffice.** There is no login validation, session, token, or password hashing (bcrypt). `/login.html` is a client-side-only simulation. This affects FR-20 through FR-25 (none of the admin actions are actually access-controlled) and any requirement implying "only the administrator can...".
+2. **No real email sending.** Enrollment confirmations (FR-17) and waitlist notices (FR-19) are shown only as on-screen feedback; no SMTP/Nodemailer service was integrated. The same applies to the contact form (FR-11), which logs the message server-side instead of emailing it.
+
+Full detail and rationale in `README.md`, section "Decisiones de Alcance Tomadas Durante el Desarrollo".

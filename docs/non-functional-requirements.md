@@ -13,7 +13,7 @@
 * **NFR-11:** The system must provide clear visual feedback (success, warning, or error messages on screen) after any major interaction, such as submitting the enrollment form.
 * **NFR-12:** The system must validate all data entries via client-side JavaScript to verify mandatory fields and correct formats (e.g., email) before sending the request.
 * **NFR-13:** The backend must re-validate and sanitize incoming information to prevent malicious code injection or the insertion of corrupt data into the database.
-* **NFR-14:** Access credentials for the administrator role must be securely managed using a one-way encryption algorithm (hashing) with an appropriate work factor (bcrypt) before being stored in the database.
+* **NFR-14:** ~~Access credentials for the administrator role must be securely managed using a one-way encryption algorithm (hashing) with an appropriate work factor (bcrypt) before being stored in the database.~~ **[Scope change — not implemented]** No admin credentials exist in the database at all; the instructor authorized skipping real authentication for this deliverable. See README.md, "Decisiones de Alcance Tomadas Durante el Desarrollo".
 * **NFR-15:** The system must process catalog queries and apply filters in a response time of less than 2 seconds under normal network conditions.
 * **NFR-16:** The system must support a minimum of 100 concurrent requests on the enrollment form without the server error rate exceeding 1%.
 * **NFR-17:** The source code and documentation must be backed up using a GitHub repository to facilitate its maintenance.
@@ -24,3 +24,18 @@
 * **NFR-22:** No critical notification (such as enrollment errors, full capacity warnings, or confirmations) should rely exclusively on auditory signals; all must be accompanied by persistent visual alerts until dismissed by the user.
 * **NFR-23:** If the visitor loses internet connection while filling out the enrollment form or if a server error occurs upon submission (NFR-18), the system must preserve the entered data on the client side so the user does not have to retype it when retrying.
 * **NFR-24:** Data communication between the front-end and back-end must mandatorily be done by consuming a RESTful API, using the JSON format for requests and responses.
+
+---
+
+## Implementation Note — Accessibility (NFR-19, NFR-20, NFR-21, NFR-22)
+
+These four are fully implemented and verified across all 8 pages, going beyond the literal wording with standard ARIA practice in support of the same goals:
+
+* `aria-hidden="true"` on every decorative icon (33 total) so screen readers don't announce redundant icon-font glyphs.
+* `aria-current="page"` on the active navigation link, `aria-controls`/`aria-expanded` on the mobile nav toggler, `aria-label` on the nav landmark.
+* `aria-labelledby` on all 5 Bootstrap modals, pointing to their title.
+* `scope="col"` on all admin table headers.
+* A keyboard-focusable "skip to content" link as the first focusable element on every page.
+* `role="alert"` on all dynamically injected feedback messages (satisfies NFR-22 for screen reader users too, not just sighted ones).
+
+No scope change here — this note just records how NFR-19/20/21/22 were satisfied, since it isn't visible from the requirement text alone.
