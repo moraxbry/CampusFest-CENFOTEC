@@ -12,7 +12,7 @@
 <body data-page="home">
   <div id="navbar-placeholder"></div>
 
-  <main>
+  <main id="main-content">
     <!-- Hero -->
     <section class="py-5" style="background: linear-gradient(135deg, var(--ucenfotec-blue-dark), var(--ucenfotec-blue-vibrant)); color: #fff;">
       <div class="container py-5 text-center">
@@ -42,11 +42,11 @@
   <div id="footer-placeholder"></div>
 
   <!-- Modal de inscripción -->
-  <div class="modal fade" id="inscriptionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="inscriptionModal" tabindex="-1" aria-hidden="true" aria-labelledby="inscriptionModalLabel">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Inscripción a Actividad</h5>
+          <h5 class="modal-title" id="inscriptionModalLabel">Inscripción a Actividad</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">

@@ -12,7 +12,7 @@
 <body data-page="catalog">
   <div id="navbar-placeholder"></div>
 
-  <main class="container py-5">
+  <main id="main-content" class="container py-5">
     <!-- Agenda del día -->
     <section class="mb-5">
       <h2 class="h4">Agenda del Día <span id="agendaDateLabel" class="text-muted fs-6"></span></h2>
@@ -68,11 +68,11 @@
   <div id="footer-placeholder"></div>
 
   <!-- Modal de inscripción -->
-  <div class="modal fade" id="inscriptionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="inscriptionModal" tabindex="-1" aria-hidden="true" aria-labelledby="inscriptionModalLabel">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Inscripción a Actividad</h5>
+          <h5 class="modal-title" id="inscriptionModalLabel">Inscripción a Actividad</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">

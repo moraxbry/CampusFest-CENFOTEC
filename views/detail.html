@@ -12,8 +12,8 @@
 <body data-page="detail">
   <div id="navbar-placeholder"></div>
 
-  <main class="container py-5" style="max-width: 720px;">
-    <a href="/catalog.html" class="btn btn-link px-0 mb-3"><i class="bi bi-arrow-left"></i> Volver al catálogo</a>
+  <main id="main-content" class="container py-5" style="max-width: 720px;">
+    <a href="/catalog.html" class="btn btn-link px-0 mb-3"><i aria-hidden="true" class="bi bi-arrow-left"></i> Volver al catálogo</a>
     <div id="activityDetail">
       <p class="text-muted">Cargando actividad…</p>
     </div>
@@ -22,11 +22,11 @@
   <div id="footer-placeholder"></div>
 
   <!-- Modal de inscripción -->
-  <div class="modal fade" id="inscriptionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="inscriptionModal" tabindex="-1" aria-hidden="true" aria-labelledby="inscriptionModalLabel">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Inscripción a Actividad</h5>
+          <h5 class="modal-title" id="inscriptionModalLabel">Inscripción a Actividad</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">

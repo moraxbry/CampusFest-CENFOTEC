@@ -392,8 +392,15 @@ Se determinó realizar un prototipo de alta fidelidad con la herramienta Figma, 
 * Cumplimiento del criterio WCAG 2.4.7 (Focus Visible): todo elemento interactivo debe mostrar un indicador de foco claro al navegar con teclado (RNF-19).
 * Atributo `alt` obligatorio y descriptivo en todas las imágenes del catálogo, stands y banners, para usuarios con discapacidad visual o conexiones lentas (RNF-20).
 * Uso de etiquetas HTML5 semánticas (`nav`, `main`, `section`, `footer`) para facilitar la navegación por teclado y la lectura por lectores de pantalla (RNF-21).
-* Ninguna notificación crítica (error de inscripción, cupo lleno, confirmación) puede depender solo de sonido; siempre debe ir acompañada de una alerta visual persistente hasta que el usuario la descarte (RNF-22).
+* Ninguna notificación crítica (error de inscripción, cupo lleno, confirmación) puede depender solo de sonido; siempre debe ir acompañada de una alerta visual persistente hasta que el usuario la descarte (RNF-22). Implementado con `role="alert"` en `showAlert()` (`public/js/ui.js`), que además notifica a lectores de pantalla.
 * Contraste de color adecuado entre texto y fondo, respetando la paleta institucional.
+* **ARIA complementario** (no exigido explícitamente por un RNF, pero necesario para cumplir el espíritu de RNF-19/20/21 con lectores de pantalla):
+  * `aria-hidden="true"` en los 33 íconos decorativos de Bootstrap Icons, para que no se anuncien de forma redundante junto al texto que acompañan.
+  * `aria-current="page"` en el enlace de navegación activo.
+  * `aria-controls` / `aria-expanded` en el botón hamburguesa del navbar móvil, y `aria-label` en el `<nav>` principal.
+  * `aria-labelledby` en los 5 modales de Bootstrap (inscripción, actividad, stand), apuntando al `id` de su título.
+  * `scope="col"` en los encabezados de las tablas del panel admin.
+  * Enlace "Saltar al contenido principal" (`.skip-link`), oculto hasta recibir foco por teclado, como primer elemento enfocable de cada página.
 
 ### Diseño de Navegación
  

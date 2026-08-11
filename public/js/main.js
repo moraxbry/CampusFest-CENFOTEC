@@ -269,10 +269,10 @@ async function initDetailPage() {
       <h1>${escapeHtml(activity.name)}</h1>
       <p class="lead text-muted">${escapeHtml(activity.description)}</p>
       <ul class="list-unstyled mb-4">
-        <li class="mb-2"><i class="bi bi-calendar"></i> ${formatDate(activity.date)} — ${escapeHtml(activity.time)}</li>
-        <li class="mb-2"><i class="bi bi-geo-alt"></i> ${escapeHtml(activity.location)}</li>
-        <li class="mb-2"><i class="bi bi-people"></i> ${activity.takenSpots}/${activity.maxCapacity} cupos ocupados</li>
-        ${activity.requirements ? `<li class="mb-2"><i class="bi bi-clipboard-check"></i> Requisitos: ${escapeHtml(activity.requirements)}</li>` : ''}
+        <li class="mb-2"><i aria-hidden="true" class="bi bi-calendar"></i> ${formatDate(activity.date)} — ${escapeHtml(activity.time)}</li>
+        <li class="mb-2"><i aria-hidden="true" class="bi bi-geo-alt"></i> ${escapeHtml(activity.location)}</li>
+        <li class="mb-2"><i aria-hidden="true" class="bi bi-people"></i> ${activity.takenSpots}/${activity.maxCapacity} cupos ocupados</li>
+        ${activity.requirements ? `<li class="mb-2"><i aria-hidden="true" class="bi bi-clipboard-check"></i> Requisitos: ${escapeHtml(activity.requirements)}</li>` : ''}
       </ul>
       ${buttonHtml}
       ${resultHtml}
@@ -402,7 +402,7 @@ async function initResultsPage() {
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-2">
             <span class="badge bg-light text-dark border">${escapeHtml(activity.category)}</span>
-            <span class="text-muted small"><i class="bi bi-calendar"></i> ${formatDate(activity.result.publishedAt)}</span>
+            <span class="text-muted small"><i aria-hidden="true" class="bi bi-calendar"></i> ${formatDate(activity.result.publishedAt)}</span>
           </div>
           <h5 class="mb-3">${escapeHtml(activity.name)}</h5>
           <div class="d-flex flex-column gap-2">

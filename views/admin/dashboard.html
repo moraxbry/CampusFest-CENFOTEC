@@ -12,7 +12,7 @@
 <body data-page="admin">
   <div id="navbar-placeholder"></div>
 
-  <main class="container py-5">
+  <main id="main-content" class="container py-5">
     <div class="admin-hero mb-4">
       <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
         <div>
@@ -27,22 +27,22 @@
       <ul class="nav flex-column admin-sidebar" id="adminTabs" role="tablist">
         <li class="nav-item" role="presentation">
           <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-activities" type="button">
-            <i class="bi bi-calendar-event"></i> Gestión de Actividades
+            <i aria-hidden="true" class="bi bi-calendar-event"></i> Gestión de Actividades
           </button>
         </li>
         <li class="nav-item" role="presentation">
           <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-pages" type="button">
-            <i class="bi bi-layout-text-window"></i> Gestionar Páginas e Info
+            <i aria-hidden="true" class="bi bi-layout-text-window"></i> Gestionar Páginas e Info
           </button>
         </li>
         <li class="nav-item" role="presentation">
           <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-inscriptions" type="button">
-            <i class="bi bi-people"></i> Inscripciones y Espera
+            <i aria-hidden="true" class="bi bi-people"></i> Inscripciones y Espera
           </button>
         </li>
         <li class="nav-item" role="presentation">
           <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-results" type="button">
-            <i class="bi bi-trophy"></i> Publicar Resultados
+            <i aria-hidden="true" class="bi bi-trophy"></i> Publicar Resultados
           </button>
         </li>
       </ul>
@@ -55,17 +55,17 @@
             <h4 class="mb-0">Control de Actividades</h4>
             <p class="text-muted small mb-0">Crea, edita o elimina actividades de la parrilla general.</p>
           </div>
-          <button class="btn btn-primary" id="newActivityBtn"><i class="bi bi-plus-lg"></i> Nueva Actividad</button>
+          <button class="btn btn-primary" id="newActivityBtn"><i aria-hidden="true" class="bi bi-plus-lg"></i> Nueva Actividad</button>
         </div>
         <div class="table-responsive">
           <table class="table align-middle">
             <thead>
               <tr>
-                <th>Actividad</th>
-                <th>Categoría</th>
-                <th>Estado</th>
-                <th>Cupos</th>
-                <th class="text-end">Acciones</th>
+                <th scope="col">Actividad</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Cupos</th>
+                <th scope="col" class="text-end">Acciones</th>
               </tr>
             </thead>
             <tbody id="activitiesTableBody"></tbody>
@@ -79,16 +79,16 @@
           <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h4 class="mb-0">Directorio de Stands</h4>
-              <button class="btn btn-primary" id="newStandBtn"><i class="bi bi-plus-lg"></i> Nuevo Stand</button>
+              <button class="btn btn-primary" id="newStandBtn"><i aria-hidden="true" class="bi bi-plus-lg"></i> Nuevo Stand</button>
             </div>
             <div class="table-responsive">
               <table class="table align-middle">
                 <thead>
                   <tr>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Encargado</th>
-                    <th class="text-end">Acciones</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Encargado</th>
+                    <th scope="col" class="text-end">Acciones</th>
                   </tr>
                 </thead>
                 <tbody id="standsTableBody"></tbody>
@@ -159,11 +159,11 @@
           <table class="table align-middle">
             <thead>
               <tr>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Actividad</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Correo</th>
+                <th scope="col">Actividad</th>
+                <th scope="col">Estado</th>
+                <th scope="col" class="text-end">Acciones</th>
               </tr>
             </thead>
             <tbody id="inscriptionsTableBody"></tbody>
@@ -208,7 +208,7 @@
   <div id="footer-placeholder"></div>
 
   <!-- Modal: crear/editar actividad -->
-  <div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true" aria-labelledby="activityModalTitle">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -286,7 +286,7 @@
   </div>
 
   <!-- Modal: crear/editar stand -->
-  <div class="modal fade" id="standModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="standModal" tabindex="-1" aria-hidden="true" aria-labelledby="standModalTitle">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

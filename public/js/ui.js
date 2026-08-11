@@ -40,30 +40,31 @@ function renderNavbar(activePage) {
   ];
 
   const navLinks = links
-    .map(
-      (link) => `
+    .map((link) => {
+      const isActive = activePage === link.page;
+      return `
         <li class="nav-item">
-          <a class="nav-link${activePage === link.page ? ' active fw-semibold' : ''}" href="${link.href}">${link.label}</a>
-        </li>`
-    )
+          <a class="nav-link${isActive ? ' active fw-semibold' : ''}" href="${link.href}"${isActive ? ' aria-current="page"' : ''}>${link.label}</a>
+        </li>`;
+    })
     .join('');
 
   const adminSection = isAdminLoggedIn()
     ? `
       <a class="btn btn-outline-primary btn-sm me-2" href="/admin/dashboard.html">
-        <i class="bi bi-shield-lock"></i> Panel Admin
+        <i aria-hidden="true" class="bi bi-shield-lock"></i> Panel Admin
       </a>
       <button class="btn btn-outline-danger btn-sm" id="logoutBtn" type="button">Cerrar Sesión</button>`
     : `<a class="btn btn-outline-primary btn-sm" href="/login.html">Ingresar</a>`;
 
   return `
-    <nav class="navbar navbar-expand-lg sticky-top" style="background-color: var(--bg-primary); border-bottom: 1px solid var(--border-color);">
+    <nav class="navbar navbar-expand-lg sticky-top" aria-label="Navegación principal" style="background-color: var(--bg-primary); border-bottom: 1px solid var(--border-color);">
       <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/home.html" style="color: var(--ucenfotec-blue-dark);">
           <img src="/img/logoCampustFest.png" alt="Logo CampusFest" height="32">
           CampusFest
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Abrir menú principal">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú principal">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
@@ -118,6 +119,12 @@ function initDarkMode() {
 function initLayout() {
   const page = document.body.dataset.page;
 
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Saltar al contenido principal';
+  document.body.prepend(skipLink);
+
   const navbarPlaceholder = document.getElementById('navbar-placeholder');
   if (navbarPlaceholder) navbarPlaceholder.outerHTML = renderNavbar(page);
 
@@ -166,8 +173,8 @@ function createActivityCard(activity) {
           </div>
           <h5 class="card-title">${escapeHtml(activity.name)}</h5>
           <p class="card-text text-muted small flex-grow-1">${escapeHtml(activity.description)}</p>
-          <p class="mb-1 small"><i class="bi bi-calendar"></i> ${formatDate(activity.date)} — ${escapeHtml(activity.time)}</p>
-          <p class="mb-3 small"><i class="bi bi-geo-alt"></i> ${escapeHtml(activity.location)}</p>
+          <p class="mb-1 small"><i aria-hidden="true" class="bi bi-calendar"></i> ${formatDate(activity.date)} — ${escapeHtml(activity.time)}</p>
+          <p class="mb-3 small"><i aria-hidden="true" class="bi bi-geo-alt"></i> ${escapeHtml(activity.location)}</p>
           <div class="d-flex gap-2 mt-auto">
             <a href="/detail.html?id=${activity._id}" class="btn btn-outline-primary btn-sm flex-grow-1">Ver Detalles</a>
             <button class="btn btn-primary btn-sm flex-grow-1 btn-inscribirse" data-activity-id="${activity._id}" data-activity-name="${escapeHtml(activity.name)}" ${buttonDisabled}>
@@ -183,13 +190,13 @@ function createStandCard(stand) {
   return `
     <div class="col-md-6 col-lg-4 mb-4">
       <div class="card h-100 shadow-sm">
-        ${stand.image ? `<img src="${escapeHtml(stand.image)}" class="card-img-top" alt="${escapeHtml(stand.name)}">` : ''}
+        ${stand.image ? `<img src="${escapeHtml(stand.image)}" class="card-img-top" alt="Imagen del proyecto ${escapeHtml(stand.name)}">` : ''}
         <div class="card-body">
           <span class="badge bg-light text-dark border mb-2">${escapeHtml(stand.category)}</span>
           <h5 class="card-title">${escapeHtml(stand.name)}</h5>
           <p class="card-text text-muted small">${escapeHtml(stand.description)}</p>
-          <p class="mb-1 small"><i class="bi bi-person"></i> ${escapeHtml(stand.owner)}</p>
-          <p class="mb-0 small"><i class="bi bi-geo-alt"></i> ${escapeHtml(stand.location)}</p>
+          <p class="mb-1 small"><i aria-hidden="true" class="bi bi-person"></i> ${escapeHtml(stand.owner)}</p>
+          <p class="mb-0 small"><i aria-hidden="true" class="bi bi-geo-alt"></i> ${escapeHtml(stand.location)}</p>
         </div>
       </div>
     </div>`;
