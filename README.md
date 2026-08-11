@@ -122,45 +122,49 @@ Toda la documentación, notas de levantamiento y requerimientos recopilados dura
 │
 ├── /models                 # [M] MODELOS: esquemas de datos (Mongoose)
 │   ├── Activity.js
-│   ├── Enrollment.js
+│   ├── Inscription.js
 │   ├── Stand.js
-│   ├── AdminUser.js
 │   └── Configuration.js    # Textos dinámicos de inicio y contacto
 │
 ├── /controllers            # [C] CONTROLADORES: lógica de negocio
 │   ├── activityController.js
 │   ├── enrollmentController.js
 │   ├── standController.js
+│   ├── configurationController.js
 │   └── adminController.js
 │
 ├── /routes                 # ENRUTADORES: definición de URLs y endpoints
 │   ├── activities.js       # Rutas públicas del catálogo
-│   ├── enrollments.js      # Rutas públicas de formularios
-│   └── admin.js            # Rutas protegidas del backoffice
+│   ├── enrollments.js      # Rutas públicas de inscripción
+│   ├── stands.js           # Rutas públicas de stands
+│   ├── configuration.js    # Rutas públicas de configuración y contacto
+│   └── admin.js            # Rutas del backoffice (sin autenticación, ver nota de alcance)
 │
-├── /middlewares            # INTERMEDIARIOS: filtros de seguridad
-│   └── auth.js              # Valida si el usuario es administrador
+├── /middlewares            # INTERMEDIARIOS: reservado para filtros futuros
+│                            # (actualmente sin uso, ver "Decisiones de Alcance")
 │
 ├── /views                  # [V] VISTAS: archivos HTML del frontend
 │   ├── home.html
 │   ├── catalog.html
 │   ├── detail.html
-│   ├── contact.html
 │   ├── stands.html
-│   └── /admin               # Vistas exclusivas del panel de control
-│       ├── dashboard.html
-│       └── manage-activities.html
+│   ├── results.html
+│   ├── contact.html
+│   ├── login.html          # Pantalla de acceso simulada (sin autenticación real)
+│   └── /admin
+│       └── dashboard.html  # Panel único con 4 secciones (actividades, páginas,
+│                            # inscripciones, resultados)
 │
 └── /public                 # ARCHIVOS ESTÁTICOS: recursos públicos del navegador
     ├── /css
     │   └── style.css        # Estilos personalizados y variables de modo oscuro
     ├── /img                 # Logotipos y banners institucionales
     └── /js                  # Lógica de front-end (Vanilla JS)
-        ├── main.js          # Inicializador general
+        ├── main.js          # Inicializador general y despacho por página
         ├── api.js           # Consumo de la API REST (Fetch)
-        ├── ui.js            # Manipulación del DOM (tarjetas, modales)
-        ├── filters.js       # Lógica de búsqueda y fechas
-        └── validator.js     # Validaciones de formularios
+        ├── ui.js             # Navbar/footer, tarjetas, badges, tema claro/oscuro
+        ├── filters.js       # Lógica de búsqueda, categoría, fecha y momento
+        └── validator.js     # Validaciones de formularios y persistencia de borradores
 ```
 
 ### Justificación de la Arquitectura
@@ -195,7 +199,7 @@ De acuerdo con las especificaciones técnicas obligatorias definidas para el pro
 
 * **Arquitectura de Software:** Se implementa una arquitectura web full-stack guiada estrictamente por el patrón de diseño Modelo-Vista-Controlador (MVC). Esta modularidad separa de forma clara las colecciones de datos (`/models`), la lógica de negocio y sanitización (`/controllers`), y las interfaces de usuario (`/views`) con sus archivos estáticos del navegador (`/public`). El intercambio de información entre el cliente y el servidor se realiza mediante el consumo de una API RESTful utilizando intercambio de datos en formato JSON.
 * **Base de Datos:** Se utiliza un motor NoSQL MongoDB, desplegado en la nube a través del servicio gestionado MongoDB Atlas, el cual garantiza la persistencia, disponibilidad continua y escalabilidad de los datos del festival.
-* **Tecnologías del Back-end:** Servidor basado en el entorno de ejecución Node.js apoyado en el framework Express.js para la creación de endpoints y enrutamiento seguro. Las credenciales del administrador se protegen mediante algoritmos de hashing unidireccional con bcrypt, y la seguridad en accesos críticos es controlada por middlewares de autenticación.
+* **Tecnologías del Back-end:** Servidor basado en el entorno de ejecución Node.js apoyado en el framework Express.js para la creación de endpoints y enrutamiento. Por decisión explícita de la clienta/docente durante el desarrollo, **no se implementó autenticación real** en el backoffice — ver [Decisiones de Alcance Tomadas Durante el Desarrollo](#decisiones-de-alcance-tomadas-durante-el-desarrollo).
 * **Tecnologías del Front-end:** Interfaz construida con HTML5 semántico (utilizando etiquetas como `nav`, `main`, `section`, `footer`), CSS3 integrado con media queries personalizadas para el soporte nativo de modo oscuro, y lógica dinámica del lado del cliente mediante JavaScript (Vanilla JS). Se utiliza el framework Bootstrap de forma obligatoria para acelerar el desarrollo del diseño adaptativo y responsivo tanto en dispositivos móviles como de escritorio.
 
 #### Alcance del Sistema
@@ -206,13 +210,20 @@ El alcance del prototipo funcional ha sido delimitado de manera estricta para as
 
 * **Módulo del Visitante:** Página de inicio interactiva con banner institucional, información general y sección dinámica con las 3 actividades destacadas (calculadas automáticamente según la menor disponibilidad de cupos). Catálogo visual de actividades en tarjetas que muestra estados de cupo simulados ("disponible", "lleno", "cancelado"), organizados cronológicamente, y con filtros múltiples combinados por fecha, categoría y estado temporal. Agenda diaria interactiva estilo calendario por horas.
 * **Módulo de Inscripciones:** Formulario integrado en una ventana modal superpuesta de Bootstrap para la captura obligatoria de datos del usuario. Validación en el cliente mediante JavaScript para verificar campos vacíos y formatos de correo. Control de unicidad para impedir inscripciones duplicadas de un mismo correo en una misma actividad. Manejo automatizado de cupos que asigna al usuario a una lista de espera si la actividad está llena, con retroalimentación visual inmediata en pantalla y notificaciones simuladas por correo electrónico.
-* **Módulo de Administración (Backoffice):** Panel de control seguro (`/admin`) con vistas y accesos restringidos para el Usuario Administrador mediante control de sesiones. Operaciones CRUD completas para registrar, editar y cancelar actividades; gestión y consulta detallada de listas de participantes inscritos y en lista de espera; privilegios exclusivos para cancelar o modificar inscripciones de usuarios; gestión del directorio de stands y grupos participantes; actualización dinámica de reconocimientos en la sección de ganadores; y modificación de textos dinámicos informativos en las páginas de inicio y contacto.
+* **Módulo de Administración (Backoffice):** Panel de control (`/admin`) con acceso mediante una pantalla de ingreso simulada (sin autenticación real — ver nota de alcance abajo). Operaciones CRUD completas para registrar, editar y cancelar actividades; gestión y consulta detallada de listas de participantes inscritos y en lista de espera; privilegios para cancelar o modificar inscripciones de usuarios; gestión del directorio de stands y grupos participantes; actualización dinámica de reconocimientos en la sección de ganadores; y modificación de textos dinámicos informativos en las páginas de inicio y contacto.
 
 **Funcionalidades Excluidas (Fuera de Alcance):**
 
 * Sistemas o pasarelas de pago integradas para las actividades.
 * Sistemas de comunicación o chats en tiempo vivo dentro de la plataforma.
 * Validaciones de identidad complejas por servicios externos de autenticación de terceros para usuarios visitantes.
+
+#### Decisiones de Alcance Tomadas Durante el Desarrollo
+
+Durante la implementación, la docente indicó dos ajustes de alcance respecto al diseño original documentado en este README:
+
+1. **Sin autenticación real:** El panel `/admin` **no implementa login, sesiones, tokens ni hashing de contraseñas (bcrypt)**. La pantalla `/login.html` es una simulación puramente visual del lado del cliente (guarda una bandera en `localStorage` y redirige al dashboard); no valida credenciales contra la base de datos ni protege las rutas `/api/admin/*` en el backend. Cualquier persona que conozca la URL puede acceder al panel y a los endpoints de administración directamente. La colección `UserAdmin` descrita en la sección de Diseño de Base de Datos **no llegó a implementarse** por esta misma razón.
+2. **Notificaciones por correo simuladas:** Ni la confirmación de inscripción (RF-17) ni el formulario de contacto (RF-11) envían correos reales por SMTP/Nodemailer. Ambos casos se resuelven con retroalimentación visual inmediata en pantalla (y, en el caso de contacto, un registro en la consola del servidor simulando el envío). No se agregó `nodemailer` como dependencia del proyecto.
 
 ---
 
@@ -225,7 +236,7 @@ A nivel de modelado, el sistema identifica a dos actores clave que interactúan 
 #### Relación de Casos de Uso y Actores
 
 1. **Usuario Visitante:** Actor del lado del cliente enfocado en consumir datos generales. Se asocia con los casos de uso de visualización general, uso de filtros avanzados, despliegue del formulario de inscripción mediante modales y visualización de stands y reconocimientos. El caso de uso *Inscribirse en Actividad* es extendido por el caso de uso *Recibir Alerta de Lista de Espera* si se cumple la condición de que los cupos simulados estén marcados como llenos.
-2. **Usuario Administrador:** Actor con privilegios elevados. Todas sus interacciones clave de administración (CRUD de actividades, stands, control de inscripciones y edición de información estática de la interfaz) incluyen obligatoriamente la verificación previa y exitosa del caso de uso *Autenticarse en el Sistema* para salvaguardar la seguridad del backoffice.
+2. **Usuario Administrador:** Actor con privilegios elevados. Todas sus interacciones clave de administración (CRUD de actividades, stands, control de inscripciones y edición de información estática de la interfaz) están agrupadas detrás del caso de uso *Ingresar al Panel Admin*. En el diseño original este caso de uso incluía autenticación real; por decisión tomada durante el desarrollo (ver [Decisiones de Alcance](#decisiones-de-alcance-tomadas-durante-el-desarrollo)), quedó implementado como una pantalla de acceso simulada sin verificación de credenciales.
 
 ---
 
@@ -391,7 +402,7 @@ graph TD
 * **Arquitectura Cliente-Servidor:** El front-end (cliente) y el back-end (servidor) están completamente desacoplados y se comunican únicamente a través de peticiones HTTP.
 * **Modelo-Vista-Controlador (MVC):** El back-end separa los datos (`/models`), la lógica de negocio (`/controllers`) y la interfaz (`/views`), conforme a RNF-05.
 * **API RESTful:** La comunicación entre capas usa recursos identificados por URL, verbos HTTP estándar (GET, POST, PUT, DELETE) y formato JSON (RNF-24).
-* **Middleware Pattern:** Se usan middlewares de Express para interceptar peticiones antes de llegar al controlador, principalmente para autenticación (`middlewares/auth.js`) y validación/sanitización de datos (RNF-13).
+* **Middleware Pattern:** Express usa middlewares globales para JSON/urlencoded, CORS y el manejo centralizado de errores. La carpeta `/middlewares` se mantiene en la estructura del proyecto sin uso actual, ya que el middleware de autenticación planeado originalmente no se implementó (ver [Decisiones de Alcance](#decisiones-de-alcance-tomadas-durante-el-desarrollo)).
 
 ---
 
@@ -460,14 +471,16 @@ Motor: MongoDB (NoSQL, orientado a documentos), desplegado en MongoDB Atlas. El 
 | `description` | String | Descripción del stand |
 | `image` | String | URL o ruta de la imagen del stand |
 
-#### Colección: `UserAdmin`
+#### Colección: `UserAdmin` — ⚠️ No implementada
+
+Diseñada originalmente para almacenar las credenciales del administrador, pero **no se llegó a crear** porque el proyecto no implementa autenticación real (ver [Decisiones de Alcance](#decisiones-de-alcance-tomadas-durante-el-desarrollo)). Se documenta el diseño original como referencia:
 
 | Campo | Tipo de dato | Descripción |
 | :--- | :--- | :--- |
 | `_id` | ObjectId | Identificador único |
 | `username` | String | Nombre de usuario para inicio de sesión |
 | `email` | String | Correo del administrador |
-| `passwordHash` | String | Contraseña cifrada con bcrypt (RNF-14) |
+| `passwordHash` | String | Contraseña cifrada con bcrypt |
 | `role` | String | Rol del usuario (ej. `superadmin`) |
 | `createdAt` | Date | Fecha de creación de la cuenta |
 
@@ -510,17 +523,18 @@ Se modela como una **única colección con un solo documento**, ya que solo exis
 | POST | `/api/inscriptions` | Registra una nueva inscripción; asigna a lista de espera si el cupo está lleno |
 | GET | `/api/stands` | Lista todos los stands y grupos participantes |
 | GET | `/api/configuration` | Devuelve el documento único con el contenido dinámico de inicio y contacto |
-| POST | `/api/contact` | Envía una consulta desde el formulario de contacto |
-| POST | `/api/admin/login` | Autentica al administrador y genera la sesión/token |
-| POST | `/api/admin/activities` | Crea una nueva actividad *(requiere autenticación)* |
-| PUT | `/api/admin/activities/:id` | Edita cualquier campo de una actividad existente, incluyendo `status` (ej. cancelarla) *(requiere autenticación)* |
-| DELETE | `/api/admin/activities/:id` | Elimina permanentemente el registro de la actividad *(requiere autenticación)* |
-| PUT | `/api/admin/activities/:id/result` | Publica o actualiza el resultado embebido de una actividad *(requiere autenticación)* |
-| GET | `/api/admin/inscriptions` | Consulta detallada de inscripciones y listas de espera *(requiere autenticación)* |
-| PUT | `/api/admin/inscriptions/:id` | Cancela o modifica una inscripción *(requiere autenticación)* |
-| POST | `/api/admin/stands` | Registra un nuevo stand *(requiere autenticación)* |
-| PUT | `/api/admin/stands/:id` | Edita un stand existente *(requiere autenticación)* |
-| PUT | `/api/admin/configuration/:section` | Modifica el subdocumento embebido `home` o `contact` del documento de configuración *(requiere autenticación)* |
+| POST | `/api/contact` | Envía una consulta desde el formulario de contacto (simulado, sin envío de correo real) |
+| POST | `/api/admin/activities` | Crea una nueva actividad |
+| PUT | `/api/admin/activities/:id` | Edita cualquier campo de una actividad existente, incluyendo `status` (ej. cancelarla) |
+| DELETE | `/api/admin/activities/:id` | Elimina permanentemente el registro de la actividad |
+| PUT | `/api/admin/activities/:id/result` | Publica o actualiza el resultado embebido de una actividad |
+| GET | `/api/admin/inscriptions` | Consulta detallada de inscripciones y listas de espera |
+| PUT | `/api/admin/inscriptions/:id` | Cancela o modifica una inscripción |
+| POST | `/api/admin/stands` | Registra un nuevo stand |
+| PUT | `/api/admin/stands/:id` | Edita un stand existente |
+| PUT | `/api/admin/configuration/:section` | Modifica el subdocumento embebido `home` o `contact` del documento de configuración |
+
+> ⚠️ Ninguno de los endpoints bajo `/api/admin/*` requiere autenticación actualmente (ver [Decisiones de Alcance](#decisiones-de-alcance-tomadas-durante-el-desarrollo)). No existe un endpoint `POST /api/admin/login`: el acceso al panel se resuelve completamente en el cliente.
 
 ---
 
@@ -529,8 +543,8 @@ Se modela como una **única colección con un solo documento**, ya que solo exis
 * **Middleware global de errores:** Express centraliza el manejo de errores no controlados en un middleware final, devolviendo siempre una respuesta JSON estandarizada (`{ success: false, message }`) sin exponer trazas técnicas al cliente (RNF-18).
 * **Validación en dos niveles:** El cliente valida campos obligatorios y formato de correo antes de enviar (RNF-12); el backend revalida y sanitiza toda entrada para prevenir inyecciones o datos corruptos (RNF-13), independientemente de si la validación del cliente fue superada.
 * **Manejo de errores de conexión a BD:** Si MongoDB Atlas no responde, el sistema captura la excepción y devuelve un mensaje genérico y amigable al usuario, registrando el detalle técnico solo en el log del servidor.
-* **Protección de rutas administrativas:** El middleware `auth.js` verifica la sesión/token antes de permitir el acceso a cualquier endpoint bajo `/api/admin/*`; una autenticación fallida retorna `401 Unauthorized` sin revelar detalles internos.
-* **Contraseñas:** Las credenciales del administrador se almacenan cifradas con bcrypt (hashing unidireccional), nunca en texto plano (RNF-14).
+* **Protección de rutas administrativas:** ⚠️ No implementada. Las rutas bajo `/api/admin/*` y la vista `/admin/dashboard.html` son de acceso libre; el "login" es una simulación del lado del cliente sin efecto en el servidor (ver [Decisiones de Alcance](#decisiones-de-alcance-tomadas-durante-el-desarrollo)).
+* **Contraseñas:** ⚠️ No aplica — no existen cuentas de administrador con contraseña en este proyecto, por lo que no se usa bcrypt ni ningún otro mecanismo de hashing.
 * **Persistencia ante fallos de red:** Si se pierde la conexión mientras se llena el formulario de inscripción, los datos ingresados se conservan en el cliente para evitar que el usuario deba volver a digitarlos (RNF-23).
 
 ---
@@ -542,36 +556,38 @@ Se modela como una **única colección con un solo documento**, ya que solo exis
 | Front-end | HTML5 semántico, CSS3, JavaScript (Vanilla JS), Bootstrap |
 | Back-end | Node.js, Express.js |
 | Base de datos | MongoDB (MongoDB Atlas) |
-| Autenticación | bcrypt (hashing de contraseñas), middleware de sesión/token |
+| Autenticación | ⚠️ No implementada — panel admin de acceso libre (ver nota de alcance) |
 | Comunicación | API RESTful con formato JSON |
 | Control de versiones | Git y GitHub |
 | Gestión del proyecto | Jira Software |
 | Prototipado | Figma (prototipo de alta fidelidad) |
 
 ### Matriz de Trazabilidad
- 
+
+> 🟢 Completado sin salvedades · 🟡 Completado con una salvedad de alcance documentada (ver columna de descripción o las [Decisiones de Alcance](#decisiones-de-alcance-tomadas-durante-el-desarrollo)) · 🔴 Pendiente
+
 | ID Req. | Descripción Breve | Implementación (Componente / Módulo MVC) | Prototipo Correspondiente | Endpoint Correspondiente | Estado |
 | :--- | :--- | :----- | :----- | :----- | :----- |
-| **RF-01** | Estructura de Inicio y Menú | `views/index.html`, `public/css/style.css` | Pantalla: Inicio | `GET /api/configuration` | Por hacer 🟡 |
-| **RF-02, RF-03** | 3 Actividades destacadas dinámicas | `controllers/activityController.js`, `models/Activity.js` | Pantalla: Inicio (sección destacados) | `GET /api/activities/featured` | Por hacer 🟡 |
-| **RF-04** | Agenda formato calendario | `views/activities.html`, `public/js/filters.js` | Pantalla: Catálogo (bloque superior) | `GET /api/activities` | Por hacer 🟡 |
-| **RF-05** | Catálogo en tarjetas visuales | `views/activities.html`, `public/js/ui.js` | Pantalla: Catálogo | `GET /api/activities` | Por hacer 🟡 |
-| **RF-06** | Detalle completo de actividad | `controllers/activityController.js`, `views/details.html` | Pantalla: Detalle de Actividad | `GET /api/activities/:id` | Por hacer 🟡 |
-| **RF-07** | Estado visual del cupo (lleno/disp) | `public/js/ui.js` (Lógica de renderizado DOM) | Pantalla: Catálogo (tarjetas) | `GET /api/activities` (campo `status`) | Por hacer 🟡 |
-| **RF-08** | Filtrado múltiple (>8 hrs, cat, fecha) | `routes/activities.js`, `public/js/filters.js` | Pantalla: Catálogo (panel de filtros) | `GET /api/activities` (query params) | Por hacer 🟡 |
-| **RF-09** | Ordenamiento cronológico automático | `controllers/activityController.js` (Query sort) | Pantalla: Catálogo | `GET /api/activities` | Por hacer 🟡 |
-| **RF-10** | Directorio de stands y grupos | `views/stands.html`, `controllers/standController.js` | Pantalla: Stands | `GET /api/stands` | Por hacer 🟡 |
-| **RF-11** | Página y formulario de contacto | `views/contact.html`, `routes/admin.js` | Pantalla: Contacto | `GET /api/configuration`, `POST /api/contact` | Por hacer 🟡 |
-| **RF-12** | Sección de resultados y ganadores | `views/results.html`, `models/Activity.js` | Pantalla: Ganadores | `GET /api/activities/results` | Por hacer 🟡 |
-| **RF-13** | Modal superpuesto de inscripción | `views/activities.html` (Bootstrap Modal), `public/js/main.js` | Pantalla: Modal de Inscripción | `POST /api/inscriptions` | Por hacer 🟡 |
-| **RF-14, RF-15** | Captura obligatoria y validación JS | `public/js/validator.js` (Frontend) | Pantalla: Modal de Inscripción | `POST /api/inscriptions` | Por hacer 🟡 |
-| **RF-16** | Unicidad de correo para evitar duplicados | `controllers/inscriptionController.js` (Backend) | Pantalla: Modal de Inscripción (validación) | `POST /api/inscriptions` | Por hacer 🟡 |
-| **RF-17** | Confirmación visual y por correo | `public/js/ui.js`, Servicio Nodemailer | Pantalla: Modal de Inscripción (mensaje éxito) | `POST /api/inscriptions` (respuesta) | Por hacer 🟡 |
-| **RF-18, RF-19** | Asignación y alerta de lista de espera | `models/Inscription.js`, `controllers/inscriptionController.js` | Pantalla: Modal de Inscripción (mensaje espera) | `POST /api/inscriptions` | Por hacer 🟡 |
-| **RF-20** | CRUD de actividades por administrador | `views/admin/activities-management.html`, `routes/admin.js` | Panel Admin — Gestión de Actividades | `POST /api/admin/activities`, `PUT/DELETE /api/admin/activities/:id` | Por hacer 🟡 |
-| **RF-21** | Consulta detallada de participantes | `controllers/adminController.js` | Panel Admin — Inscripciones y Espera | `GET /api/admin/inscriptions` | Por hacer 🟡 |
-| **RF-22** | Privilegios exclusivos de cancelación | `middlewares/auth.js`, `routes/admin.js` | Panel Admin — Inscripciones y Espera | `PUT /api/admin/inscriptions/:id` | Por hacer 🟡 |
-| **RF-23** | Gestión (CRUD) de Stands y Grupos | `controllers/adminController.js` | Panel Admin — Páginas e Info (Info. de Stands) | `POST /api/admin/stands`, `PUT /api/admin/stands/:id` | Por hacer 🟡 |
-| **RF-24** | Publicación de resultados/ganadores | `models/Activity.js` (subdocumento `result`) | Panel Admin — Publicar Resultados | `PUT /api/admin/activities/:id/result` | Por hacer 🟡 |
-| **RF-25** | Modificación de textos dinámicos | `models/Configuration.js`, `controllers/adminController.js` | Panel Admin — Páginas e Info (Inicio/Contacto) | `PUT /api/admin/configuration/:section` | Por hacer 🟡 |
+| **RF-01** | Estructura de Inicio y Menú | `views/home.html`, `public/js/ui.js` (navbar/footer) | Pantalla: Inicio | `GET /api/configuration` | Completado 🟢 |
+| **RF-02, RF-03** | 3 Actividades destacadas dinámicas | `controllers/activityController.js`, `views/home.html` | Pantalla: Inicio (sección destacados) | `GET /api/activities/featured` | Completado 🟢 |
+| **RF-04** | Agenda formato calendario | `views/catalog.html`, `public/js/main.js` (`renderAgenda`) | Pantalla: Catálogo (bloque superior) | `GET /api/activities` | Completado 🟡 — lista cronológica por horario del día más próximo, no una grilla de calendario completa |
+| **RF-05** | Catálogo en tarjetas visuales | `views/catalog.html`, `public/js/ui.js` (`createActivityCard`) | Pantalla: Catálogo | `GET /api/activities` | Completado 🟢 |
+| **RF-06** | Detalle completo de actividad | `controllers/activityController.js`, `views/detail.html` | Pantalla: Detalle de Actividad | `GET /api/activities/:id` | Completado 🟢 |
+| **RF-07** | Estado visual del cupo (lleno/disp) | `public/js/ui.js` (`getStatusInfo`), `public/css/style.css` | Pantalla: Catálogo (tarjetas) | `GET /api/activities` (campo `status`) | Completado 🟢 |
+| **RF-08** | Filtrado múltiple (>8 hrs, cat, fecha) | `public/js/filters.js`, `views/catalog.html` | Pantalla: Catálogo (panel de filtros) | `GET /api/activities` (query params) | Completado 🟡 — filtros de texto, categoría, fecha y momento temporal; sin filtro por duración (el modelo no almacena horas de duración) |
+| **RF-09** | Ordenamiento cronológico automático | `controllers/activityController.js` (Query sort) | Pantalla: Catálogo | `GET /api/activities` | Completado 🟢 |
+| **RF-10** | Directorio de stands y grupos | `views/stands.html`, `controllers/standController.js` | Pantalla: Stands | `GET /api/stands` | Completado 🟢 |
+| **RF-11** | Página y formulario de contacto | `views/contact.html`, `controllers/configurationController.js` | Pantalla: Contacto | `GET /api/configuration`, `POST /api/contact` | Completado 🟡 — envío de consulta simulado, sin correo real |
+| **RF-12** | Sección de resultados y ganadores | `views/results.html`, `controllers/activityController.js` | Pantalla: Ganadores | `GET /api/activities/results` | Completado 🟢 |
+| **RF-13** | Modal superpuesto de inscripción | `views/catalog.html`/`detail.html`/`home.html` (Bootstrap Modal), `public/js/main.js` | Pantalla: Modal de Inscripción | `POST /api/inscriptions` | Completado 🟢 |
+| **RF-14, RF-15** | Captura obligatoria y validación JS | `public/js/validator.js` | Pantalla: Modal de Inscripción | `POST /api/inscriptions` | Completado 🟢 |
+| **RF-16** | Unicidad de correo para evitar duplicados | `models/Inscription.js` (índice único), `controllers/enrollmentController.js` | Pantalla: Modal de Inscripción (validación) | `POST /api/inscriptions` | Completado 🟢 |
+| **RF-17** | Confirmación visual y por correo | `public/js/main.js` (alerta de confirmación/espera) | Pantalla: Modal de Inscripción (mensaje éxito) | `POST /api/inscriptions` (respuesta) | Completado 🟡 — solo retroalimentación visual, sin envío real de correo |
+| **RF-18, RF-19** | Asignación y alerta de lista de espera | `models/Inscription.js`, `controllers/enrollmentController.js` | Pantalla: Modal de Inscripción (mensaje espera) | `POST /api/inscriptions` | Completado 🟢 |
+| **RF-20** | CRUD de actividades por administrador | `views/admin/dashboard.html`, `controllers/adminController.js` | Panel Admin — Gestión de Actividades | `POST /api/admin/activities`, `PUT/DELETE /api/admin/activities/:id` | Completado 🟢 |
+| **RF-21** | Consulta detallada de participantes | `controllers/adminController.js` (`getInscriptions`) | Panel Admin — Inscripciones y Espera | `GET /api/admin/inscriptions` | Completado 🟢 |
+| **RF-22** | Privilegios exclusivos de cancelación | `controllers/adminController.js` (`updateInscription`) | Panel Admin — Inscripciones y Espera | `PUT /api/admin/inscriptions/:id` | Completado 🟡 — la cancelación funciona, pero el panel no está protegido por autenticación |
+| **RF-23** | Gestión (CRUD) de Stands y Grupos | `controllers/adminController.js`, `views/admin/dashboard.html` | Panel Admin — Páginas e Info (Info. de Stands) | `POST /api/admin/stands`, `PUT /api/admin/stands/:id` | Completado 🟢 |
+| **RF-24** | Publicación de resultados/ganadores | `controllers/adminController.js` (`publishActivityResult`) | Panel Admin — Publicar Resultados | `PUT /api/admin/activities/:id/result` | Completado 🟢 |
+| **RF-25** | Modificación de textos dinámicos | `controllers/adminController.js` (`updateConfiguration`) | Panel Admin — Páginas e Info (Inicio/Contacto) | `PUT /api/admin/configuration/:section` | Completado 🟢 |
 | **RNF (TODOS)** | Estructuración, BD y Entornos | `server.js`, `config/db.js`, Repositorio GitHub | — | — | Completado 🟢 |
