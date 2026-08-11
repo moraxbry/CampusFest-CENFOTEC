@@ -348,34 +348,97 @@ async function initStandsPage() {
    ================================================== */
 
 async function initResultsPage() {
+  const loading = document.getElementById('resultsLoading');
+  const featuredSection = document.getElementById('featuredPodium');
+  const listSection = document.getElementById('resultsListSection');
+  const noResultsAtAll = document.getElementById('noResultsAtAll');
   const grid = document.getElementById('resultsGrid');
   const emptyState = document.getElementById('resultsEmpty');
+  const searchInput = document.getElementById('resultsSearchInput');
+  const categoryFilter = document.getElementById('resultsCategoryFilter');
 
+  let results = [];
   try {
     const { data } = await api.getActivityResults();
-    emptyState.classList.toggle('d-none', data.length > 0);
-    grid.innerHTML = data
-      .map(
-        (activity) => `
-        <div class="col-md-6 mb-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <span class="badge bg-light text-dark border mb-2">${escapeHtml(activity.category)}</span>
-              <h4>${escapeHtml(activity.name)}</h4>
-              <p class="text-muted small">Finalizado el ${formatDate(activity.result.publishedAt)}</p>
-              <div class="d-flex flex-column gap-2 mt-3">
-                <div class="d-flex align-items-center gap-2"><span class="fs-4">🥇</span> <span>${escapeHtml(activity.result.firstPlace || '—')}</span></div>
-                <div class="d-flex align-items-center gap-2"><span class="fs-4">🥈</span> <span>${escapeHtml(activity.result.secondPlace || '—')}</span></div>
-                <div class="d-flex align-items-center gap-2"><span class="fs-4">🥉</span> <span>${escapeHtml(activity.result.thirdPlace || '—')}</span></div>
-              </div>
-            </div>
-          </div>
-        </div>`
-      )
-      .join('');
+    results = data;
   } catch (error) {
-    grid.innerHTML = `<div class="col-12"><div class="alert alert-danger">${error.message}</div></div>`;
+    loading.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    return;
   }
+
+  loading.classList.add('d-none');
+
+  if (!results.length) {
+    noResultsAtAll.classList.remove('d-none');
+    return;
+  }
+
+  // El backend ya ordena por result.publishedAt descendente, así que el
+  // primero es el evento concluido más reciente.
+  const [featured, ...rest] = results;
+
+  featuredSection.classList.remove('d-none');
+  document.getElementById('featuredActivityName').textContent = featured.name;
+  document.getElementById('featuredDate').textContent = formatDate(featured.result.publishedAt);
+  document.getElementById('featuredFirst').textContent = featured.result.firstPlace || '—';
+  document.getElementById('featuredSecond').textContent = featured.result.secondPlace || '—';
+  document.getElementById('featuredThird').textContent = featured.result.thirdPlace || '—';
+
+  if (!rest.length) return;
+
+  listSection.classList.remove('d-none');
+
+  const categories = [...new Set(rest.map((a) => a.category))];
+  categories.forEach((category) => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+  });
+
+  const renderResultCard = (activity) => `
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-light text-dark border">${escapeHtml(activity.category)}</span>
+            <span class="text-muted small"><i class="bi bi-calendar"></i> ${formatDate(activity.result.publishedAt)}</span>
+          </div>
+          <h5 class="mb-3">${escapeHtml(activity.name)}</h5>
+          <div class="d-flex flex-column gap-2">
+            <div class="d-flex align-items-center gap-2"><span class="fs-5">🥇</span> <span>${escapeHtml(activity.result.firstPlace || '—')}</span></div>
+            ${activity.result.secondPlace ? `<div class="d-flex align-items-center gap-2"><span class="fs-5">🥈</span> <span>${escapeHtml(activity.result.secondPlace)}</span></div>` : ''}
+            ${activity.result.thirdPlace ? `<div class="d-flex align-items-center gap-2"><span class="fs-5">🥉</span> <span>${escapeHtml(activity.result.thirdPlace)}</span></div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  const render = (list) => {
+    emptyState.classList.toggle('d-none', list.length > 0);
+    grid.innerHTML = list.map(renderResultCard).join('');
+  };
+
+  const applyFilters = () => {
+    const search = searchInput.value.trim().toLowerCase();
+    const category = categoryFilter.value;
+    const filtered = rest.filter((activity) => {
+      const matchesSearch = !search || activity.name.toLowerCase().includes(search);
+      const matchesCategory = category === 'Todas' || activity.category === category;
+      return matchesSearch && matchesCategory;
+    });
+    render(filtered);
+  };
+
+  searchInput.addEventListener('input', applyFilters);
+  categoryFilter.addEventListener('change', applyFilters);
+  document.getElementById('clearResultsFiltersBtn').addEventListener('click', () => {
+    searchInput.value = '';
+    categoryFilter.value = 'Todas';
+    applyFilters();
+  });
+
+  render(rest);
 }
 
 /* ==================================================

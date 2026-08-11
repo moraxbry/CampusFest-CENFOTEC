@@ -13,14 +13,71 @@
   <div id="navbar-placeholder"></div>
 
   <main class="container py-5">
-    <h1>Ganadores y Reconocimientos</h1>
-    <p class="text-muted">Celebramos la excelencia, el esfuerzo y los resultados de las actividades concluidas de CampusFest.</p>
+    <h1><i class="bi bi-trophy-fill text-warning"></i> Ganadores y Reconocimientos</h1>
+    <p class="text-muted mb-4">Celebramos la excelencia, el esfuerzo y los resultados de las actividades concluidas de CampusFest.</p>
 
-    <div class="alert alert-info d-none" id="resultsEmpty">Todavía no se han publicado resultados.</div>
+    <div id="resultsLoading" class="text-center text-muted py-4">Cargando resultados…</div>
 
-    <div class="row" id="resultsGrid">
-      <div class="col-12 text-center text-muted py-4">Cargando resultados…</div>
+    <!-- Podio del resultado más reciente -->
+    <section id="featuredPodium" class="d-none mb-5 p-4 rounded-4 text-center" style="background: linear-gradient(180deg, var(--ucenfotec-blue-light) 0%, var(--bg-primary) 100%); border: 1px solid var(--border-color);">
+      <span class="badge bg-primary mb-2 text-uppercase">Evento Principal Concluido</span>
+      <h2 class="fw-bold mb-1" id="featuredActivityName"></h2>
+      <p class="text-muted small mb-4"><i class="bi bi-calendar"></i> Finalizado el <span id="featuredDate"></span></p>
+
+      <div class="row justify-content-center align-items-end g-3">
+        <div class="col-10 col-md-3 order-2 order-md-1">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="fs-1">🥈</div>
+              <h5 class="mb-1" id="featuredSecond">—</h5>
+              <div class="bg-light rounded py-2 fw-bold text-secondary mt-2">Plata</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-10 col-md-4 order-1 order-md-2">
+          <div class="card h-100 shadow border-warning border-2">
+            <div class="card-body">
+              <div class="fs-1">🥇</div>
+              <h4 class="fw-bold mb-1" id="featuredFirst">—</h4>
+              <div class="rounded py-3 fw-bold text-white mt-2" style="background: linear-gradient(135deg, #f7c948, #d9a441);">ORO</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-10 col-md-3 order-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="fs-1">🥉</div>
+              <h5 class="mb-1" id="featuredThird">—</h5>
+              <div class="bg-light rounded py-2 fw-bold text-secondary mt-2">Bronce</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="resultsListSection" class="d-none">
+      <h2 class="h4 mb-3">Todos los Resultados</h2>
+
+      <div class="row g-2 mb-3">
+        <div class="col-md-8">
+          <input type="text" class="form-control" id="resultsSearchInput" placeholder="Buscar por actividad concluida...">
+        </div>
+        <div class="col-md-4">
+          <select class="form-select" id="resultsCategoryFilter">
+            <option value="Todas">Todas las categorías</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="alert alert-info d-none" id="resultsEmpty">
+        No se encontraron resultados con esos filtros.
+        <button type="button" class="btn btn-link btn-sm p-0 ms-1" id="clearResultsFiltersBtn">Limpiar filtros</button>
+      </div>
+
+      <div class="row" id="resultsGrid"></div>
     </div>
+
+    <div class="alert alert-info d-none" id="noResultsAtAll">Todavía no se han publicado resultados.</div>
   </main>
 
   <div id="footer-placeholder"></div>
