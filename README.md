@@ -12,6 +12,69 @@ Desarrollada para "Proyecto Integrador I" de la Universidad CENFOTEC.
 
 El presente proyecto consiste en el desarrollo de una aplicación web full stack diseñada para la gestión integral del festival estudiantil CampusFest. El sistema centralizará la administración de actividades, el control de inscripciones, la publicación de la agenda y la visualización de los stands y grupos participantes, con el fin de optimizar el proceso que actualmente se maneja de forma manual.
 
+---
+
+## Instalación y Ejecución
+
+### Requisitos previos
+
+* [Node.js](https://nodejs.org/) v18 o superior (incluye npm).
+* Una base de datos en [MongoDB Atlas](https://www.mongodb.com/atlas) (gratuita) ya creada, o acceso a un clúster existente.
+* Git.
+
+### 1. Clonar el repositorio
+
+```bash
+git clone git@github.com:moraxbry/CampusFest-CENFOTEC.git
+cd CampusFest-CENFOTEC
+```
+
+### 2. Instalar dependencias
+
+```bash
+npm install
+```
+
+Esto instala las dependencias de producción (`express`, `mongoose`, `dotenv`, `cors`) y de desarrollo (`nodemon`) declaradas en `package.json`.
+
+### 3. Configurar variables de entorno
+
+Creá un archivo `.env` en la raíz del proyecto (no se sube a Git, ya está en `.gitignore`) con:
+
+```env
+PORT=3000
+MONGODB_URI=mongodb+srv://<usuario>:<password>@<tu-cluster>.mongodb.net/CampusFest?appName=Cluster0
+```
+
+Reemplazá `MONGODB_URI` por la cadena de conexión real de tu clúster de Atlas (Atlas → Connect → Drivers → Node.js).
+
+> **Nota (Windows):** si `mongodb+srv://` falla con un error de DNS (`querySrv ECONNREFUSED`), es un problema conocido de resolución de DNS de Node en algunas redes — no significa que la URI esté mal. La solución aplicada en este proyecto está en `config/db.js` (`dns.setServers(['8.8.8.8', '1.1.1.1'])`).
+
+### 4. Ejecutar el proyecto
+
+```bash
+# Modo desarrollo (reinicia automáticamente con nodemon al guardar cambios)
+npm run dev
+
+# Modo producción (sin recarga automática)
+npm start
+```
+
+Si todo quedó bien configurado, la terminal debe mostrar:
+
+```
+✅ Conexión a MongoDB Atlas establecida correctamente
+🚀 Servidor CampusFest corriendo en http://localhost:3000
+```
+
+### 5. Acceder a la aplicación
+
+* **Sitio público:** [http://localhost:3000](http://localhost:3000) (redirige a `/home.html`)
+* **Panel de administración:** [http://localhost:3000/login.html](http://localhost:3000/login.html) — acceso simulado, cualquier correo/contraseña ingresa (ver [Decisiones de Alcance](#decisiones-de-alcance-tomadas-durante-el-desarrollo))
+* **Verificación rápida de la API:** [http://localhost:3000/api/health](http://localhost:3000/api/health)
+
+---
+
 ## Perfiles de Usuario y Actores Involucrados
 
 El sistema contempla dos actores principales:
@@ -104,7 +167,9 @@ Toda la documentación, notas de levantamiento y requerimientos recopilados dura
 *   [Entrevista con la clienta](./docs/client-interview.md) — Resumen de la sesión de levantamiento de requerimientos con Verónica Mora.
 *   [Requisitos Funcionales](./docs/functional-requirements.md) — Backlog del producto, historias de usuario y criterios de aceptación.
 *   [Requisitos No Funcionales](./docs/non-functional-requirements.md) — Restricciones del sistema, estándares de seguridad, métricas de rendimiento y configuración del stack tecnológico.
-*   [Especificación de Requerimientos](./docs/Especificacion-de-Requerimientos.md) — Especificación de Requisitos de Software (ERS) y matriz de trazabilidad.
+*   [Especificación de Requisitos de Software (ERS)](./docs/ERS_ES.md) — Especificación formal de requerimientos.
+*   [Plan de Pruebas](./docs/test-plan.md) — Escenarios de prueba (happy path y edge cases) por funcionalidad.
+*   [Matriz de Trazabilidad](#matriz-de-trazabilidad) — Ver sección más abajo en este mismo README.
 
 ## Estructura de Directorios del Proyecto
 
