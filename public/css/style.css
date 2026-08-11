@@ -169,8 +169,8 @@ textarea:focus-visible {
 }
 
 .admin-sidebar .nav-link.active {
-    background-color: var(--ucenfotec-blue-vibrant);
-    color: #fff;
+    background-color: color-mix(in srgb, var(--ucenfotec-blue-vibrant) 12%, transparent);
+    color: var(--ucenfotec-blue-vibrant);
 }
 
 .admin-content {
