@@ -254,6 +254,7 @@ async function initDetailPage() {
     }
 
     container.innerHTML = `
+      ${activity.image ? `<img src="${escapeHtml(activity.image)}" alt="Imagen representativa de ${escapeHtml(activity.name)}" class="w-100 rounded mb-4" style="max-height: 320px; object-fit: cover;">` : ''}
       <div class="d-flex justify-content-between align-items-start mb-3">
         <span class="badge ${statusInfo.badgeClass} text-white fs-6">${statusInfo.label}</span>
         <span class="badge bg-light text-dark border fs-6">${escapeHtml(activity.category)}</span>
@@ -478,6 +479,7 @@ async function initActivitiesTab() {
       form.querySelector('[name="time"]').value = activity.time;
       form.querySelector('[name="location"]').value = activity.location;
       form.querySelector('[name="requirements"]').value = activity.requirements || '';
+      form.querySelector('[name="image"]').value = activity.image || '';
       form.querySelector('[name="maxCapacity"]').value = activity.maxCapacity;
       form.querySelector('[name="status"]').value = activity.status;
       document.getElementById('activityModalTitle').textContent = 'Editar Actividad';

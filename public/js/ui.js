@@ -158,6 +158,7 @@ function createActivityCard(activity) {
   return `
     <div class="col-md-6 col-lg-4 mb-4">
       <div class="card h-100 shadow-sm">
+        ${activity.image ? `<img src="${escapeHtml(activity.image)}" class="card-img-top" alt="Imagen representativa de ${escapeHtml(activity.name)}" style="height: 160px; object-fit: cover;">` : ''}
         <div class="card-body d-flex flex-column">
           <div class="d-flex justify-content-between align-items-start mb-2">
             <span class="badge ${statusInfo.badgeClass} text-white">${statusInfo.label}</span>

@@ -411,6 +411,7 @@ Motor: MongoDB (NoSQL, orientado a documentos), desplegado en MongoDB Atlas. El 
 | `time` | String | Hora de inicio |
 | `location` | String | Ubicación física dentro del festival |
 | `requirements` | String | Requisitos de participación |
+| `image` | String | URL de la imagen representativa de la actividad |
 | `maxCapacity` | Number | Total de cupos disponibles |
 | `takenSpots` | Number | Cupos actualmente ocupados |
 | `status` | String (enum: `available`, `full`, `cancelled`) | Estado simulado del cupo (RF-07) |

@@ -24,6 +24,7 @@ const activitySchema = new Schema(
     time: { type: String, required: true },
     location: { type: String, required: true, trim: true },
     requirements: { type: String, default: '' },
+    image: { type: String, default: '' },
     maxCapacity: { type: Number, required: true, min: 1 },
     takenSpots: { type: Number, default: 0, min: 0 },
     status: {
