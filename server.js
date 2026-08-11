@@ -16,8 +16,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Archivos estáticos (CSS, JS del cliente, imágenes)
+// Archivos estáticos (CSS, JS del cliente, imágenes) y vistas HTML
 app.use(express.static('public'));
+app.use(express.static('views'));
+
+// Redirección de la raíz a la página de inicio
+app.get('/', (req, res) => {
+  res.redirect('/home.html');
+});
 
 // Rutas de la API
 app.use('/api/activities', activitiesRoutes);
