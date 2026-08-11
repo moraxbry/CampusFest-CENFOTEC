@@ -23,7 +23,7 @@ app.use(express.static('public'));
 app.use('/api/activities', activitiesRoutes);
 app.use('/api/inscriptions', enrollmentsRoutes);
 app.use('/api/stands', standsRoutes);
-app.use('/api/configuration', configurationRoutes);
+app.use('/api', configurationRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Ruta de verificación rápida (health check)
