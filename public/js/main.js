@@ -457,6 +457,8 @@ async function initContactPage() {
 
   const form = document.getElementById('contactForm');
   const alertContainer = document.getElementById('contactAlert');
+  const formWrapper = document.getElementById('contactFormWrapper');
+  const successView = document.getElementById('contactSuccessView');
   restoreFormDraft(form, 'contact_draft');
   persistFormDraft(form, 'contact_draft');
 
@@ -473,13 +475,21 @@ async function initContactPage() {
     const data = Object.fromEntries(new FormData(form).entries());
 
     try {
-      const response = await api.sendContact(data);
-      showAlert(alertContainer, response.message, 'success');
+      await api.sendContact(data);
+      document.getElementById('successName').textContent = data.fullName;
+      document.getElementById('successSubject').textContent = `"${data.subject}"`;
+      formWrapper.classList.add('d-none');
+      successView.classList.remove('d-none');
       form.reset();
       clearFormDraft('contact_draft');
     } catch (error) {
       showAlert(alertContainer, error.message, 'danger');
     }
+  });
+
+  document.getElementById('sendAnotherBtn').addEventListener('click', () => {
+    successView.classList.add('d-none');
+    formWrapper.classList.remove('d-none');
   });
 }
 
