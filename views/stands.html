@@ -17,6 +17,9 @@
     <p class="text-muted">Descubre los proyectos innovadores desarrollados por nuestros estudiantes.</p>
 
     <div class="row g-2 mb-4">
+      <div class="col-md-8">
+        <input type="text" class="form-control" id="standSearchInput" placeholder="Buscar por nombre, descripción o encargado...">
+      </div>
       <div class="col-md-4">
         <select class="form-select" id="standCategoryFilter">
           <option value="Todas">Todas las categorías</option>
@@ -24,7 +27,10 @@
       </div>
     </div>
 
-    <div class="alert alert-info d-none" id="standsEmpty">No hay stands registrados todavía.</div>
+    <div class="alert alert-info d-none" id="standsEmpty">
+      No se encontraron stands con esos filtros.
+      <button type="button" class="btn btn-link btn-sm p-0 ms-1" id="clearStandFiltersBtn">Limpiar filtros</button>
+    </div>
 
     <div class="row" id="standsGrid">
       <div class="col-12 text-center text-muted py-4">Cargando stands…</div>

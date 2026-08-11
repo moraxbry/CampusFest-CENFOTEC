@@ -151,6 +151,13 @@ async function initCatalogPage() {
   document.getElementById('categoryFilter').addEventListener('change', applyFilters);
   document.getElementById('dateFilter').addEventListener('change', applyFilters);
   document.getElementById('momentoFilter').addEventListener('change', applyFilters);
+  document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('categoryFilter').value = 'Todas';
+    document.getElementById('dateFilter').value = 'Todas';
+    document.getElementById('momentoFilter').value = 'Todos';
+    applyFilters();
+  });
 
   function renderCatalogGrid(activities) {
     resultsCount.textContent = `Mostrando ${activities.length} actividad${activities.length === 1 ? '' : 'es'}`;
@@ -284,6 +291,7 @@ async function initStandsPage() {
   const grid = document.getElementById('standsGrid');
   const emptyState = document.getElementById('standsEmpty');
   const categoryFilter = document.getElementById('standCategoryFilter');
+  const searchInput = document.getElementById('standSearchInput');
 
   let stands = [];
   try {
@@ -307,9 +315,29 @@ async function initStandsPage() {
     grid.innerHTML = list.map(createStandCard).join('');
   };
 
-  categoryFilter.addEventListener('change', () => {
-    const value = categoryFilter.value;
-    render(value === 'Todas' ? stands : stands.filter((s) => s.category === value));
+  const applyFilters = () => {
+    const search = searchInput.value.trim().toLowerCase();
+    const category = categoryFilter.value;
+
+    const filtered = stands.filter((stand) => {
+      const matchesSearch =
+        !search ||
+        stand.name.toLowerCase().includes(search) ||
+        stand.description.toLowerCase().includes(search) ||
+        stand.owner.toLowerCase().includes(search);
+      const matchesCategory = category === 'Todas' || stand.category === category;
+      return matchesSearch && matchesCategory;
+    });
+
+    render(filtered);
+  };
+
+  searchInput.addEventListener('input', applyFilters);
+  categoryFilter.addEventListener('change', applyFilters);
+  document.getElementById('clearStandFiltersBtn').addEventListener('click', () => {
+    searchInput.value = '';
+    categoryFilter.value = 'Todas';
+    applyFilters();
   });
 
   render(stands);
