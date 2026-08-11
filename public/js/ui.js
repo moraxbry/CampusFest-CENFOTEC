@@ -59,7 +59,10 @@ function renderNavbar(activePage) {
   return `
     <nav class="navbar navbar-expand-lg sticky-top" style="background-color: var(--bg-primary); border-bottom: 1px solid var(--border-color);">
       <div class="container">
-        <a class="navbar-brand fw-bold" href="/home.html" style="color: var(--ucenfotec-blue-dark);">CampusFest</a>
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/home.html" style="color: var(--ucenfotec-blue-dark);">
+          <img src="/img/logoCampustFest.png" alt="Logo CampusFest" height="32">
+          CampusFest
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Abrir menú principal">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -85,22 +88,30 @@ function renderFooter() {
     </footer>`;
 }
 
+function getEffectiveTheme() {
+  const stored = localStorage.getItem('campusfest_theme');
+  if (stored === 'dark' || stored === 'light') return stored;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+  // data-theme alimenta nuestras variables CSS; data-bs-theme hace que los
+  // propios componentes de Bootstrap (cards, tablas, modales, forms) cambien
+  // de paleta también, no solo el fondo de <body>.
+  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.setAttribute('data-bs-theme', theme);
+  const toggle = document.getElementById('darkModeToggle');
+  if (toggle) toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
 function initDarkMode() {
   const toggle = document.getElementById('darkModeToggle');
-  const stored = localStorage.getItem('campusfest_theme');
-  if (stored === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
+  applyTheme(getEffectiveTheme());
 
   toggle?.addEventListener('click', () => {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    if (isDark) {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('campusfest_theme', 'light');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('campusfest_theme', 'dark');
-    }
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('campusfest_theme', next);
+    applyTheme(next);
   });
 }
 

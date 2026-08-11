@@ -37,21 +37,54 @@
     --alert-success: var(--school-fundamentals);
     --alert-warning: var(--school-it);
     --alert-error: var(--school-business);
+
+    color-scheme: light;
 }
 
-/* --- Mapeo de Interfaz: MODO OSCURO NATIVO (RNF-10) --- */
+/* --- Mapeo de Interfaz: MODO OSCURO NATIVO (RNF-10) ---
+   Se aplica automáticamente si el sistema operativo/navegador prefiere
+   oscuro (RNF-10), y también manualmente vía [data-theme="dark"] cuando
+   el usuario usa el interruptor del navbar (ver public/js/ui.js). */
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-primary: #121212;
         --bg-secondary: #1e1e1e;
-        --bg-surface: #252526;
+        --bg-surface: #202024;
         --text-main: #f5f5f5;
         --text-muted: #b0b0b0;
         --border-color: rgba(255, 255, 255, 0.15);
 
         --ucenfotec-blue-dark: #1f5cb8;
-        --bg-surface-card: #202024;
+
+        color-scheme: dark;
     }
+}
+
+:root[data-theme="dark"] {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-surface: #202024;
+    --text-main: #f5f5f5;
+    --text-muted: #b0b0b0;
+    --border-color: rgba(255, 255, 255, 0.15);
+
+    --ucenfotec-blue-dark: #1f5cb8;
+
+    color-scheme: dark;
+}
+
+/* Fuerza modo claro aunque el sistema operativo prefiera oscuro */
+:root[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: var(--ucenfotec-gray-light);
+    --bg-surface: #f8f9fa;
+    --text-main: #1a1a1a;
+    --text-muted: var(--ucenfotec-gray-dark);
+    --border-color: rgba(0, 0, 0, 0.1);
+
+    --ucenfotec-blue-dark: #164a98;
+
+    color-scheme: light;
 }
 
 /* ==================================================
@@ -60,6 +93,22 @@
 body {
     background-color: var(--bg-primary);
     color: var(--text-main);
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Componentes de Bootstrap que no traen variable propia de superficie */
+.card,
+.modal-content,
+.dropdown-menu {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+
+.table {
+    --bs-table-color: var(--text-main);
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--border-color);
 }
 
 /* Foco visible obligatorio (WCAG 2.4.7 / RNF-19) */
@@ -85,3 +134,62 @@ textarea:focus-visible {
 .badge-disponible { background-color: var(--status-disponible); }
 .badge-lleno { background-color: var(--status-lleno); }
 .badge-cancelado { background-color: var(--status-cancelado); }
+
+/* ==================================================
+   3. PANEL DE ADMINISTRACIÓN (layout de sidebar)
+   ================================================== */
+.admin-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.admin-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+}
+
+.admin-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-main);
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.admin-sidebar .nav-link:hover {
+    background-color: var(--bg-secondary);
+}
+
+.admin-sidebar .nav-link.active {
+    background-color: var(--ucenfotec-blue-vibrant);
+    color: #fff;
+}
+
+.admin-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-hero {
+    background: linear-gradient(135deg, var(--ucenfotec-blue-dark), var(--ucenfotec-blue-vibrant));
+    color: #fff;
+    border-radius: 0.75rem;
+    padding: 1.5rem 1.75rem;
+}
+
+@media (max-width: 767px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+    .admin-sidebar {
+        width: 100%;
+    }
+}
